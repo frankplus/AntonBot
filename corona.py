@@ -28,6 +28,26 @@ def get_country_status(query):
                     " - Total Deaths: " + str(deaths) + " (+" + str(new_deaths) + ")" 
             return info
 
+def get_italy_status():
+    r = requests.get('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-andamento-nazionale.json')
+    data = r.json()
+    latest = data[-1]
+    yesterday = data[-2]
+    totale_attualmente_positivi = str(latest["totale_attualmente_positivi"])
+    nuovi_attualmente_positivi = str(latest["nuovi_attualmente_positivi"])
+    deceduti = str(latest["deceduti"])
+    nuovi_deceduti = str(latest["deceduti"] - yesterday["deceduti"])
+    dimessi = str(latest["dimessi_guariti"])
+    nuovi_dimessi = str(latest["dimessi_guariti"] - yesterday["dimessi_guariti"])
+    totale_casi = str(latest["totale_casi"])
+
+    info = "Totale attualmente positivi: " + totale_attualmente_positivi + " (+" + nuovi_attualmente_positivi + ")" \
+            + " - Deceduti: " + deceduti + " (+" + nuovi_deceduti + ")" \
+            + " - Dimessi guariti: " + dimessi + " (+" + nuovi_dimessi + ")" \
+            + " - Totale casi: " + totale_casi
+    
+    return info
+
 def get_italy_regione(query):
     r = requests.get('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni-latest.json')
     data = r.json()
@@ -72,6 +92,9 @@ def get_global_status():
 def elaborate_query(query):
     if query == "global":
         return get_global_status()
+    
+    if query == "italy" or query == "italia":
+        return get_italy_status()
 
     info = get_country_status(query)
     if info:
@@ -85,7 +108,7 @@ def elaborate_query(query):
     if info:
         return info
     
-    return ""
+    return "I don't know bro"
         
 
 print(elaborate_query(sys.argv[1]))

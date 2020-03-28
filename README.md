@@ -9,4 +9,4 @@ pip install .
 nohup python3 ./coronabot.py &
 ```
 
-See corona.py to set channel name and bot name
+See coronabot.py to set channel name and bot name
