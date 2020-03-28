@@ -55,11 +55,12 @@ def on_welcome(bot):
     bot.join_channel("#bugbyte-ita")
 
 def on_message(bot, channel, sender, message):
-    if "hi" in message.lower() or "hello" in message.lower():
+    message = message.strip().lower()
+    if message in ["hi", "hello", "yo", "hey", "covidbot"]:
         greeting_message = random.choice(greetings).format(sender)
         bot.send_message(channel, greeting_message)
     elif "!corona" in message:
-        country = message.split(" ", 1)[1].lower()
+        country = message.split(" ", 1)[1]
         if country == "global":
             bot.send_message(channel, get_global_status())
         elif country == "boris johnson":
