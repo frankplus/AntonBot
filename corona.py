@@ -1,5 +1,6 @@
-import JustIRC
-import random
+#!/usr/bin/python
+
+import sys
 import requests
 
 def get_country_status(query):
@@ -85,45 +86,7 @@ def elaborate_query(query):
         return info
     
     return ""
+        
 
-
-bot = JustIRC.IRCConnection()
-
-greetings = [
-    "Hello {}!",
-    "Hi {}!",
-    "Hello there {}!",
-    "Hi there {}!",
-    "Hey {}!"
-]
-
-def on_connect(bot):
-    bot.set_nick("CovidBot")
-    bot.send_user_packet("CovidBot")
-
-def on_welcome(bot):
-    bot.join_channel("#bugbyte-ita")
-
-def on_message(bot, channel, sender, message):
-    message = message.strip().lower()
-    if message in ["hi", "hello", "yo", "hey", "covidbot"]:
-        greeting_message = random.choice(greetings).format(sender)
-        bot.send_message(channel, greeting_message)
-    elif message.startswith("!corona"):
-        query = message.split(" ", 1)[1]
-        if query == "global":
-            bot.send_message(channel, get_global_status())
-        elif query == "boris johnson":
-            bot.send_message(channel, "Happy Hunger Games!")
-        else:
-            info = elaborate_query(query)
-            bot.send_message(channel, info)
-
-
-bot.on_connect.append(on_connect)
-bot.on_welcome.append(on_welcome)
-bot.on_public_message.append(on_message)
-
-bot.connect("irc.freenode.net")
-bot.run_loop()
+print(elaborate_query(sys.argv[1]))
 
