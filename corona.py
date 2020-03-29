@@ -6,7 +6,7 @@ def format(text):
     if irc_formatting:
         return '\x02\x0304{}\x03\x02'.format(text)
     else:
-        return text
+        return str(text)
 
 def get_country_status(query):
     r = requests.get('https://coronavirus-tracker-api.herokuapp.com/v2/locations')
@@ -88,12 +88,23 @@ def get_global_status():
     info = 'Total Cases: {} - Total Deaths: {}'.format(confirmed, deaths)
     return info
 
+def get_latest_news():
+    r = requests.get('http://newsapi.org/v2/top-headlines?q=coronavirus&sources=bbc-news&apiKey=e49b250beb4b4dda944498542fd55491')
+    data = r.json()
+    if data["status"] == "ok":
+        article = data["articles"][0]
+        info = '{} - {}'.format(article["url"], article["description"])
+        return info
+
 def elaborate_query(query):
     if query == "global":
         return get_global_status()
     
     if query == "italy" or query == "italia":
         return get_italy_status()
+
+    if query == "news":
+        return get_latest_news()
 
     info = get_country_status(query)
     if info:
