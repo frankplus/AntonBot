@@ -1,6 +1,12 @@
+#!/usr/bin/python3
 import JustIRC
 import random
 import requests
+
+channel = "#bugbyte-ita"
+botname = "CovidBot"
+irc_server_address = "irc.freenode.net"
+bot_call_command = "!corona"
 
 def get_country_status(query):
     r = requests.get('https://coronavirus-tracker-api.herokuapp.com/v2/locations')
@@ -23,8 +29,8 @@ def get_country_status(query):
             timeline = data["location"]["timelines"]["deaths"]["timeline"]
             new_deaths = timeline.popitem()[1] - timeline.popitem()[1]
 
-            info = "Total Cases: " + str(confirmed) + " (+" + str(new_cases) + ")" \
-                    " - Total Deaths: " + str(deaths) + " (+" + str(new_deaths) + ")" 
+            info = 'Total Cases: \x02{}\x02 (+\x02{}\x02) - Total Deaths: \x02{}\x02 (+\x02{}\x02)' \
+                    .format(confirmed, new_cases, deaths, new_deaths)
             return info
 
 def get_italy_status():
@@ -40,10 +46,8 @@ def get_italy_status():
     nuovi_dimessi = str(latest["dimessi_guariti"] - yesterday["dimessi_guariti"])
     totale_casi = str(latest["totale_casi"])
 
-    info = "Totale attualmente positivi: " + totale_attualmente_positivi + " (+" + nuovi_attualmente_positivi + ")" \
-            + " - Deceduti: " + deceduti + " (+" + nuovi_deceduti + ")" \
-            + " - Dimessi guariti: " + dimessi + " (+" + nuovi_dimessi + ")" \
-            + " - Totale casi: " + totale_casi
+    info = 'Totale attualmente positivi: {} (+{}) - Deceduti: {} (+{}) - Dimessi guariti: {} (+{}) - Totale casi: {}' \
+            .format(totale_attualmente_positivi, nuovi_attualmente_positivi, deceduti, nuovi_deceduti, dimessi, nuovi_dimessi, totale_casi)
     
     return info
 
@@ -58,12 +62,9 @@ def get_italy_regione(query):
             deceduti = regione["deceduti"]
             totale_casi = regione["totale_casi"]
             tamponi = regione["tamponi"]
-            
-            info = "Attualmente positivi: " + str(totale_attualmente_positivi) + " (+" + str(nuovi_attualmente_positivi) + ")" \
-                    + " - Dimessi guariti: " + str(dimessi_guariti) \
-                    + " - Deceduti: " + str(deceduti) \
-                    + " - Totale casi: " + str(totale_casi) \
-                    + " - Tamponi: " + str(tamponi)
+
+            info = 'Attualmente positivi: {} (+{}) - Dimessi guariti: {} - Deceduti: {} - Totale casi: {} - Tamponi: {}' \
+                    .format(totale_attualmente_positivi, nuovi_attualmente_positivi, dimessi_guariti, deceduti, totale_casi, tamponi)
 
             return info
 
@@ -74,7 +75,7 @@ def get_italy_province(query):
         if provincia["denominazione_provincia"].lower() == query:
             totale_casi = provincia["totale_casi"]
             
-            info = "Totale Casi: " + str(totale_casi)
+            info = 'Totale Casi: {}'.format(totale_casi)
             return info
 
 
@@ -85,7 +86,7 @@ def get_global_status():
     confirmed = data["latest"]["confirmed"]
     deaths = data["latest"]["deaths"]
 
-    info = "Total Cases: " + str(confirmed) + " - Total Deaths: " + str(deaths)
+    info = 'Total Cases: {} - Total Deaths: {}'.format(confirmed, deaths)
     return info
 
 def elaborate_query(query):
@@ -117,26 +118,25 @@ greetings = [
     "Hi {}!",
     "Hello there {}!",
     "Hi there {}!",
-    "Hey {}!"
+    "Hey {}!",
+    "sup?"
 ]
 
 def on_connect(bot):
-    bot.set_nick("CovidBot")
-    bot.send_user_packet("CovidBot")
+    bot.set_nick(botname)
+    bot.send_user_packet(botname)
 
 def on_welcome(bot):
-    bot.join_channel("#bugbyte-ita")
+    bot.join_channel(channel)
 
 def on_message(bot, channel, sender, message):
     message = message.strip().lower()
-    if message in ["hi", "hello", "yo", "hey", "covidbot"]:
+    if message in ["hi", "hello", "yo", "hey"] or botname in message :
         greeting_message = random.choice(greetings).format(sender)
         bot.send_message(channel, greeting_message)
-    elif message.startswith("!corona"):
+    elif message.startswith(bot_call_command):
         query = message.split(" ", 1)[1]
-        if query == "global":
-            bot.send_message(channel, get_global_status())
-        elif query == "boris johnson":
+        if query == "boris johnson":
             bot.send_message(channel, "Happy Hunger Games!")
         else:
             info = elaborate_query(query)
@@ -147,6 +147,6 @@ bot.on_connect.append(on_connect)
 bot.on_welcome.append(on_welcome)
 bot.on_public_message.append(on_message)
 
-bot.connect("irc.freenode.net")
+bot.connect(irc_server_address)
 bot.run_loop()
 
