@@ -88,36 +88,12 @@ def get_global_status():
     info = 'Total Cases: {} - Total Deaths: {}'.format(confirmed, deaths)
     return info
 
-def get_latest_news(query = None):
-    if query:
-        url = 'http://newsapi.org/v2/everything?q={}&sortBy=publishedAt&apiKey=e49b250beb4b4dda944498542fd55491'.format(query)
-    else:
-        url = 'http://newsapi.org/v2/top-headlines?country=it&sortBy=publishedAt&apiKey=e49b250beb4b4dda944498542fd55491'
-        
-    r = requests.get(url)
-    data = r.json()
-    if data["status"] == "ok" and data["totalResults"] > 0:
-        article = data["articles"][0]
-        info = '{} - {}'.format(article["url"], article["description"])
-        return info
-    else:
-        return "I haven't found anything"
-
 def elaborate_query(query):
     if query == "global":
         return get_global_status()
     
     if query == "italy" or query == "italia":
         return get_italy_status()
-
-    if query.startswith("news"):
-        query = query.split(" ", 1)
-        if len(query)>1:
-            news_query = query[1]
-            return get_latest_news(news_query)
-        else:
-            return get_latest_news()
-
 
     info = get_country_status(query)
     if info:

@@ -3,6 +3,7 @@
 import JustIRC
 import random
 import corona
+import news
 
 channel = "#bugbyte-ita"
 botname = "CovidBot"
@@ -35,17 +36,32 @@ def on_message(bot, channel, sender, message):
         greeting_message = random.choice(greetings).format(sender)
         bot.send_message(channel, greeting_message)
     elif message.startswith(bot_call_command):
-        query = message.split(" ", 1)[1]
-        if query == "boris johnson":
-            bot.send_message(channel, "Happy Hunger Games!")
+        query = message.split(" ", 1)
+        if len(query)>1:
+            query = query[1]
+            if query == "boris johnson":
+                bot.send_message(channel, "Happy Hunger Games!")
+            else:
+                response = corona.elaborate_query(query)
+                bot.send_message(channel, response)
+    elif message.startswith("!news"):
+        query = query.split(" ", 1)
+        if len(query)>1:
+            news_query = query[1]
+            response = news.get_latest_news(news_query)
         else:
-            info = corona.elaborate_query(query)
-            bot.send_message(channel, info)
+            response =  news.get_latest_news()
+
+        bot.send_message(channel, response)
+    elif message == "!help":
+        response = "!corona <location> for latest coronavirus report for specified location. \
+                    !news <query> for latest news related to specified query."
 
 
 bot.on_connect.append(on_connect)
 bot.on_welcome.append(on_welcome)
 bot.on_public_message.append(on_message)
+bot.on_private_message.append(on_message)
 
 bot.connect(irc_server_address)
 bot.run_loop()
