@@ -9,7 +9,7 @@ irc_server_address = "irc.freenode.net"
 bot_call_command = "!corona"
 
 def format(text):
-    return '\x02\x034{}\x03\x02'.format(text)
+    return '\x02\x0304{}\x03\x02'.format(text)
 
 def get_country_status(query):
     r = requests.get('https://coronavirus-tracker-api.herokuapp.com/v2/locations')
