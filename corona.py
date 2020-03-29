@@ -1,10 +1,12 @@
-#!/usr/bin/python3
-
-import sys
 import requests
 
+irc_formatting = False
+
 def format(text):
-    return '\x02\x0304{}\x03\x02'.format(text)
+    if irc_formatting:
+        return '\x02\x0304{}\x03\x02'.format(text)
+    else:
+        return text
 
 def get_country_status(query):
     r = requests.get('https://coronavirus-tracker-api.herokuapp.com/v2/locations')
@@ -106,7 +108,3 @@ def elaborate_query(query):
         return info
     
     return "I don't know bro"
-        
-
-print(elaborate_query(sys.argv[1]))
-
