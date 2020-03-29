@@ -54,8 +54,7 @@ def on_message(bot, channel, sender, message):
 
         bot.send_message(channel, response)
     elif message == "!help":
-        response = "!corona <location> for latest coronavirus report for specified location. \
-                    !news <query> for latest news related to specified query."
+        response = "!corona <location> for latest coronavirus report for specified location. !news <query> for latest news related to specified query."
         bot.send_message(channel, response)
 
 def on_private_message(bot, sender, message):

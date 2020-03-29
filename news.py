@@ -3,7 +3,7 @@ import requests
 def get_latest_news(query = None):
 
     if query:
-        url = 'http://newsapi.org/v2/everything?q={}&sortBy=publishedAt&apiKey=e49b250beb4b4dda944498542fd55491'.format(query)
+        url = 'http://newsapi.org/v2/everything?q={}&sortBy=relevancy&apiKey=e49b250beb4b4dda944498542fd55491'.format(query)
     else:
         url = 'http://newsapi.org/v2/top-headlines?country=it&sortBy=publishedAt&apiKey=e49b250beb4b4dda944498542fd55491'
         
