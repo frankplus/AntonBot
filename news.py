@@ -1,11 +1,13 @@
 import requests
 
+newsapi_key = "e49b250beb4b4dda944498542fd55491"
+
 def get_latest_news(query = None):
 
     if query:
-        url = 'http://newsapi.org/v2/everything?q={}&sortBy=relevancy&apiKey=e49b250beb4b4dda944498542fd55491'.format(query)
+        url = 'http://newsapi.org/v2/everything?q={}&sortBy=relevancy&apiKey={}'.format(query, newsapi_key)
     else:
-        url = 'http://newsapi.org/v2/top-headlines?country=it&sortBy=publishedAt&apiKey=e49b250beb4b4dda944498542fd55491'
+        url = 'http://newsapi.org/v2/top-headlines?country=it&sortBy=publishedAt&apiKey={}'.format(newsapi_key)
         
     r = requests.get(url)
     data = r.json()
