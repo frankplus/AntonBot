@@ -42,14 +42,15 @@ def get_italy_status():
     yesterday = data[-2]
     totale_positivi = format(latest["totale_positivi"])
     variazione_totale_positivi = format(latest["variazione_totale_positivi"], sign = True)
+    nuovi_positivi = format(latest["nuovi_positivi"], sign = True)
     deceduti = format(latest["deceduti"])
     nuovi_deceduti = format(latest["deceduti"] - yesterday["deceduti"], sign = True)
     dimessi = format(latest["dimessi_guariti"])
     nuovi_dimessi = format(latest["dimessi_guariti"] - yesterday["dimessi_guariti"], sign = True)
     totale_casi = format(latest["totale_casi"])
 
-    info = 'Totale attualmente positivi: {} ({}) - Deceduti: {} ({}) - Dimessi guariti: {} ({}) - Totale casi: {}' \
-            .format(totale_positivi, variazione_totale_positivi, deceduti, nuovi_deceduti, dimessi, nuovi_dimessi, totale_casi)
+    info = 'Totale attualmente positivi: {} ({}) - Deceduti: {} ({}) - Dimessi guariti: {} ({}) - Totale casi: {} ({})' \
+            .format(totale_positivi, variazione_totale_positivi, deceduti, nuovi_deceduti, dimessi, nuovi_dimessi, totale_casi, nuovi_positivi)
     
     return info
 
@@ -60,13 +61,14 @@ def get_italy_regione(query):
         if regione["denominazione_regione"].lower() == query:
             totale_positivi = format(regione["totale_positivi"])
             variazione_totale_positivi = format(regione["variazione_totale_positivi"], sign = True)
+            nuovi_positivi = format(regione["nuovi_positivi"], sign = True)
             dimessi_guariti = format(regione["dimessi_guariti"])
             deceduti = format(regione["deceduti"])
             totale_casi = format(regione["totale_casi"])
             tamponi = format(regione["tamponi"])
 
-            info = 'Attualmente positivi: {} ({}) - Dimessi guariti: {} - Deceduti: {} - Totale casi: {} - Tamponi: {}' \
-                    .format(totale_positivi, variazione_totale_positivi, dimessi_guariti, deceduti, totale_casi, tamponi)
+            info = 'Attualmente positivi: {} ({}) - Dimessi guariti: {} - Deceduti: {} - Totale casi: {} ({}) - Tamponi: {}' \
+                    .format(totale_positivi, variazione_totale_positivi, dimessi_guariti, deceduti, totale_casi, nuovi_positivi, tamponi)
 
             return info
 
