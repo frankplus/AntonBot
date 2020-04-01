@@ -26,7 +26,7 @@ def on_private_message(bot, sender, message):
     response = apis.elaborate_query(sender, message)
     lines = response.split("\n")
     for line in lines:
-        bot.send_message(channel, line)
+        bot.send_message(sender, line)
 
 
 bot.on_connect.append(on_connect)

@@ -136,7 +136,7 @@ def elaborate_query(sender, message):
                     '!weather <location> for weather report at specified location. \n'\
                     '!youtube <query> to search for youtube video. \n'\
                     '!latex <query> to compile latex into png. \n'\
-                    '!lat <query> to compile latex into unicode.'
+                    '!tex <query> to compile latex into unicode.'
     else:
         found_urls = re.findall(r'(https?://[^\s]+)', message)
         for url in found_urls:
