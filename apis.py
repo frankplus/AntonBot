@@ -131,11 +131,12 @@ def elaborate_query(sender, message):
         if len(query)>1:
             return latex_to_png(query[1])
     elif message == "!help":
-        return '!corona <location> for latest coronavirus report for specified location. '\
-                    '!news <query> for latest news related to specified query. '\
-                    '!weather <location> for weather report at specified location. '\
-                    '!youtube <query> to search for youtube video. '\
-                    '!latex <query> to compile latex into png. '
+        return '!corona <location> for latest coronavirus report for specified location. \n'\
+                    '!news <query> for latest news related to specified query. \n'\
+                    '!weather <location> for weather report at specified location. \n'\
+                    '!youtube <query> to search for youtube video. \n'\
+                    '!latex <query> to compile latex into png. \n'\
+                    '!lat <query> to compile latex into unicode.'
     else:
         found_urls = re.findall(r'(https?://[^\s]+)', message)
         for url in found_urls:
