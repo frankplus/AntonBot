@@ -66,8 +66,8 @@ def get_youtube_description(query):
         title = items[0]["snippet"]["title"]
         description = items[0]["snippet"]["description"]
         description = description[:150] if len(description) > 150 else description
-        hooktube_url = query.replace("youtube", "hooktube")
-        return "{} {} - {}".format(hooktube_url, title, description)
+        invidio_url = query.replace("youtube.com", "invidio.us")
+        return "{} {} - {}".format(invidio_url, title, description)
     
     return ""
 
@@ -78,7 +78,7 @@ def search_youtube_video(query):
     if len(items) > 0:
         item = items[0]
         video_id = item["id"]["videoId"]
-        url = "https://www.hooktube.com/watch?v={}".format(video_id)
+        url = "https://www.invidio.us/watch?v={}".format(video_id)
         title = item["snippet"]["title"]
         description = item["snippet"]["description"]
         description = description[:150] if len(description) > 150 else description
