@@ -84,6 +84,11 @@ def search_youtube_video(query):
         description = description[:150] if len(description) > 150 else description
         return "{} {} - {}".format(url, title, description)
 
+def latex_to_png(formula):
+    formula = "\\bg_ffffff {}".format(formula)
+    r = requests.get( 'http://latex.codecogs.com/png.latex?\dpi{{300}} {formula}'.format(formula=formula))
+    return r.url
+
 
 def elaborate_query(sender, message):
     message = message.strip()
@@ -113,10 +118,16 @@ def elaborate_query(sender, message):
         query = message.split(" ", 1)
         if len(query)>1:
             return search_youtube_video(query[1])
+    elif message.startswith("!latex"):
+        query = message.split(" ", 1)
+        if len(query)>1:
+            return latex_to_png(query[1])
     elif message == "!help":
         return '!corona <location> for latest coronavirus report for specified location. '\
                     '!news <query> for latest news related to specified query. '\
-                    '!weather <location> for weather report at specified location. '
+                    '!weather <location> for weather report at specified location. '\
+                    '!youtube <query> to search for youtube video. '\
+                    '!latex <query> to compile latex into png. '
     else:
         found_urls = re.findall(r'(https?://[^\s]+)', message)
         for url in found_urls:
