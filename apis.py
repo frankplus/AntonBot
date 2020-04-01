@@ -5,6 +5,7 @@ import datetime
 import re
 from urllib.parse import urlparse, parse_qs
 from apikeys import newsapi_key, openweather_key, youtube_key
+from pylatexenc.latex2text import LatexNodes2Text
 
 
 greetings = [
@@ -89,6 +90,9 @@ def latex_to_png(formula):
     r = requests.get( 'http://latex.codecogs.com/png.latex?\dpi{{300}} {formula}'.format(formula=formula))
     return r.url
 
+def latex_to_text(formula):
+    return LatexNodes2Text().latex_to_text(formula)
+
 
 def elaborate_query(sender, message):
     message = message.strip()
@@ -118,6 +122,10 @@ def elaborate_query(sender, message):
         query = message.split(" ", 1)
         if len(query)>1:
             return search_youtube_video(query[1])
+    elif message.startswith("!tex"):
+        query = message.split(" ", 1)
+        if len(query)>1:
+            return latex_to_text(query[1])
     elif message.startswith("!latex"):
         query = message.split(" ", 1)
         if len(query)>1:
