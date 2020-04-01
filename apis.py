@@ -53,8 +53,12 @@ def get_weather(location):
     return response
 
 def get_youtube_description(query):
-    url_data = urlparse(query)
-    video_id = parse_qs(url_data.query)["v"][0]
+    url_queries = parse_qs(urlparse(query).query)
+
+    if "v" not in url_queries:
+        return ""
+
+    video_id = url_queries["v"][0]
     url = 'https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id={}&key={}'.format(video_id, youtube_key)
     data = requests.get(url).json()
     items = data["items"]
@@ -66,6 +70,19 @@ def get_youtube_description(query):
         return "{} {} - {}".format(hooktube_url, title, description)
     
     return ""
+
+def search_youtube_video(query):
+    url = "https://www.googleapis.com/youtube/v3/search?part=snippet&q={}&maxResults=1&type=video&key={}".format(query, youtube_key)
+    data = requests.get(url).json()
+    items = data["items"]
+    if len(items) > 0:
+        item = items[0]
+        video_id = item["id"]["videoId"]
+        url = "https://www.hooktube.com/watch?v={}".format(video_id)
+        title = item["snippet"]["title"]
+        description = item["snippet"]["description"]
+        description = description[:150] if len(description) > 150 else description
+        return "{} {} - {}".format(url, title, description)
 
 
 def elaborate_query(sender, message):
@@ -92,15 +109,19 @@ def elaborate_query(sender, message):
         if len(query)>1:
             location = query[1]
             return get_weather(location)
+    elif message.startswith("!youtube"):
+        query = message.split(" ", 1)
+        if len(query)>1:
+            return search_youtube_video(query[1])
     elif message == "!help":
         return '!corona <location> for latest coronavirus report for specified location. '\
                     '!news <query> for latest news related to specified query. '\
                     '!weather <location> for weather report at specified location. '
-
-    found_urls = re.findall(r'(https?://[^\s]+)', message)
-    for url in found_urls:
-        response = get_youtube_description(url)
-        if response:
-            return response
+    else:
+        found_urls = re.findall(r'(https?://[^\s]+)', message)
+        for url in found_urls:
+            response = get_youtube_description(url)
+            if response:
+                return response
 
     return ""
