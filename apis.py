@@ -2,6 +2,7 @@ import requests
 import random
 import corona
 import datetime
+import re
 from urllib.parse import urlparse, parse_qs
 from apikeys import newsapi_key, openweather_key, youtube_key
 
@@ -91,11 +92,15 @@ def elaborate_query(sender, message):
         if len(query)>1:
             location = query[1]
             return get_weather(location)
-    elif message.startswith("https://www.youtube.com/"):
-        return get_youtube_description(message)
     elif message == "!help":
         return '!corona <location> for latest coronavirus report for specified location. '\
                     '!news <query> for latest news related to specified query. '\
                     '!weather <location> for weather report at specified location. '
+
+    found_urls = re.findall(r'(https?://[^\s]+)', message)
+    for url in found_urls:
+        response = get_youtube_description(url)
+        if response:
+            return response
 
     return ""

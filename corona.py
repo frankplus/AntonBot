@@ -1,6 +1,6 @@
 import requests
 
-irc_formatting = False
+irc_formatting = True
 
 def format(number, sign = False):
     if irc_formatting:
