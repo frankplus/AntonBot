@@ -16,4 +16,5 @@ See coronabot.py to set channel name and bot name
 
 ## Commands
 `!corona <location>` for latest coronavirus report for specified location. \
-`!news <query>` for latest news related to specified query.
+`!news <query>` for latest news related to specified query. \
+`!weather <location>` for weather report at specified location. 

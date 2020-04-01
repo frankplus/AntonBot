@@ -2,8 +2,6 @@
 
 import sys
 import corona 
-import news
+import apis
 
-print(corona.elaborate_query(sys.argv[1]))
-
-print(news.get_latest_news(sys.argv[1]))
+print(apis.elaborate_query("usertest", sys.argv[1]))
