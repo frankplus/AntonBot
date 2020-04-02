@@ -4,7 +4,7 @@ import corona
 import datetime
 import re
 from urllib.parse import urlparse, parse_qs
-from apikeys import newsapi_key, openweather_key, youtube_key
+from apikeys import *
 from pylatexenc.latex2text import LatexNodes2Text
 
 
@@ -57,22 +57,19 @@ def get_youtube_description(query):
     parsed_url = urlparse(query)
     url_queries = parse_qs(parsed_url.query)
 
-    if "v" not in url_queries:
-        return ""
-
-    video_id = url_queries["v"][0]
-    url = 'https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id={}&key={}'.format(video_id, youtube_key)
-    data = requests.get(url).json()
-    items = data["items"]
-    if len(items) > 0:
-        title = items[0]["snippet"]["title"]
-        description = items[0]["snippet"]["description"]
-        description = description[:150] if len(description) > 150 else description
-        parsed_url = parsed_url._replace(netloc='invidio.us') # replace youtube into invidio.us
-        invidio_url = parsed_url.geturl()
-        return "{} {} - {}".format(invidio_url, title, description)
+    if "v" in url_queries:
+        video_id = url_queries["v"][0]
+        url = 'https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id={}&key={}'.format(video_id, youtube_key)
+        data = requests.get(url).json()
+        items = data["items"]
+        if len(items) > 0:
+            title = items[0]["snippet"]["title"]
+            description = items[0]["snippet"]["description"]
+            description = description[:150] if len(description) > 150 else description
+            parsed_url = parsed_url._replace(netloc='invidio.us') # replace youtube into invidio.us
+            invidio_url = parsed_url.geturl()
+            return "{} {} - {}".format(invidio_url, title, description)
     
-    return ""
 
 def search_youtube_video(query):
     url = "https://www.googleapis.com/youtube/v3/search?part=snippet&q={}&maxResults=1&type=video&key={}".format(query, youtube_key)
@@ -86,6 +83,29 @@ def search_youtube_video(query):
         description = item["snippet"]["description"]
         description = description[:150] if len(description) > 150 else description
         return "{} {} - {}".format(url, title, description)
+
+def url_meta(url):
+    req_url = "https://api.urlmeta.org/?url={}".format(url)
+    data = requests.get(req_url, headers={'Authorization': urlmeta_api_authorization}).json()
+    if data["result"]["status"] == "OK":
+        title = data["meta"]["title"]
+        description = data["meta"]["description"]
+        description = description[:200] if len(description) > 200 else description
+        return "{} - {}".format(title, description)
+
+def get_url_info(url):
+    # check if youtube url
+    response = get_youtube_description(url)
+    if response:
+        return response
+    
+    # get url meta informations
+    response = url_meta(url)
+    if response:
+        return response
+
+    return ""
+
 
 def latex_to_png(formula):
     formula = "\\bg_ffffff {}".format(formula)
@@ -142,8 +162,6 @@ def elaborate_query(sender, message):
     else:
         found_urls = re.findall(r'(https?://[^\s]+)', message)
         for url in found_urls:
-            response = get_youtube_description(url)
-            if response:
-                return response
+            return get_url_info(url)
 
     return ""
