@@ -54,7 +54,8 @@ def get_weather(location):
     return response
 
 def get_youtube_description(query):
-    url_queries = parse_qs(urlparse(query).query)
+    parsed_url = urlparse(query)
+    url_queries = parse_qs(parsed_url.query)
 
     if "v" not in url_queries:
         return ""
@@ -67,7 +68,8 @@ def get_youtube_description(query):
         title = items[0]["snippet"]["title"]
         description = items[0]["snippet"]["description"]
         description = description[:150] if len(description) > 150 else description
-        invidio_url = query.replace("youtube.com", "invidio.us")
+        parsed_url = parsed_url._replace(netloc='invidio.us') # replace youtube into invidio.us
+        invidio_url = parsed_url.geturl()
         return "{} {} - {}".format(invidio_url, title, description)
     
     return ""
