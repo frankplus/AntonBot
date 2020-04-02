@@ -89,9 +89,11 @@ def url_meta(url):
     data = requests.get(req_url, headers={'Authorization': urlmeta_api_authorization}).json()
     if data["result"]["status"] == "OK":
         title = data["meta"]["title"]
-        description = data["meta"]["description"]
-        description = description[:200] if len(description) > 200 else description
-        return "{} - {}".format(title, description)
+        if "description" in data["meta"]:
+            description = data["meta"]["description"]
+            description = description[:200] if len(description) > 200 else description
+            return "{} - {}".format(title, description)
+        return title
 
 def get_url_info(url):
     # check if youtube url
