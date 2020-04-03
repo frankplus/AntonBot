@@ -65,7 +65,7 @@ def elaborate_query(sender, message):
             }
             return commands.get(query[1], "Invalid command")
         else:
-            return "corona news weather youtube latex tex music"
+            return "COMMANDS: corona news weather youtube latex tex music \nSee !help <command>"
 
     else:
         found_urls = re.findall(r'(https?://[^\s]+)', message)
