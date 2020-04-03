@@ -1,7 +1,7 @@
 import requests
 import datetime
 import re
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs, urlencode
 from apikeys import *
 from pylatexenc.latex2text import LatexNodes2Text
 
@@ -42,9 +42,18 @@ def get_weather(location):
         response = data["message"]
     return response
 
+def get_youtube_videoinfo(item):
+    title = item["snippet"]["title"]
+    description = item["snippet"]["description"]
+    description = description[:150] if len(description) > 150 else description
+    return "{} → {}".format(title, description)
+
+
 def get_youtube_description(query):
     parsed_url = urlparse(query)
     url_queries = parse_qs(parsed_url.query)
+    parsed_url = parsed_url._replace(netloc='invidio.us') # replace youtube into invidio.us
+    invidio_url = parsed_url.geturl()
 
     if "v" in url_queries:
         video_id = url_queries["v"][0]
@@ -52,26 +61,27 @@ def get_youtube_description(query):
         data = requests.get(url).json()
         items = data["items"]
         if len(items) > 0:
-            title = items[0]["snippet"]["title"]
-            description = items[0]["snippet"]["description"]
-            description = description[:150] if len(description) > 150 else description
-            parsed_url = parsed_url._replace(netloc='invidio.us') # replace youtube into invidio.us
-            invidio_url = parsed_url.geturl()
-            return "{} {} → {}".format(invidio_url, title, description)
+            info = get_youtube_videoinfo(items[0])
+            return "{} {}".format(invidio_url, info)
     
 
-def search_youtube_video(query):
-    url = "https://www.googleapis.com/youtube/v3/search?part=snippet&q={}&maxResults=1&type=video&key={}".format(query, youtube_key)
+def search_youtube_video(query, music=False):
+
+    q = {'part':'snippet', 'maxResults': 1, 'type':'video', 'q': query, 'key': youtube_key}
+    if music:
+        q['videoCategoryId'] = 10
+    url = "https://www.googleapis.com/youtube/v3/search?"+urlencode(q)
     data = requests.get(url).json()
+    print(url)
     items = data["items"]
     if len(items) > 0:
         item = items[0]
         video_id = item["id"]["videoId"]
         url = "https://www.invidio.us/watch?v={}".format(video_id)
-        title = item["snippet"]["title"]
-        description = item["snippet"]["description"]
-        description = description[:150] if len(description) > 150 else description
-        return "{} {} → {}".format(url, title, description)
+        info = get_youtube_videoinfo(item)
+        return "{} {}".format(url, info)
+
+    return "I haven't found anything"
 
 def url_meta(url):
     req_url = "https://api.urlmeta.org/?url={}".format(url)
@@ -85,17 +95,13 @@ def url_meta(url):
         return title
 
 def get_url_info(url):
-    # check if youtube url
     response = get_youtube_description(url)
     if response:
         return response
     
-    # get url meta informations
     response = url_meta(url)
     if response:
         return response
-
-    return ""
 
 
 def latex_to_png(formula):

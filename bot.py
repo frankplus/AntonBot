@@ -39,6 +39,10 @@ def elaborate_query(sender, message):
         query = message.split(" ", 1)
         if len(query)>1:
             return search_youtube_video(query[1])
+    elif message.startswith("!music"):
+        query = message.split(" ", 1)
+        if len(query)>1:
+            return search_youtube_video(query[1], music = True)
     elif message.startswith("!tex"):
         query = message.split(" ", 1)
         if len(query)>1:
@@ -47,14 +51,25 @@ def elaborate_query(sender, message):
         query = message.split(" ", 1)
         if len(query)>1:
             return latex_to_png(query[1])
-    elif message == "!help":
-        return '!corona <location> for latest coronavirus report for specified location. \n'\
-                    '!news <query> for latest news related to specified query. \n'\
-                    '!weather <location> for weather report at specified location. \n'\
-                    '!youtube <query> to search for youtube video. \n'\
-                    '!latex <query> to compile latex into png. \n'\
-                    '!tex <query> to compile latex into unicode.'
+    elif message.startswith("!help"):
+        query = message.split(" ", 1)
+        if len(query)>1:
+            commands = {
+                'corona': '!corona <location> for latest coronavirus report for specified location.',
+                'news': '!news <query> for latest news related to specified query.',
+                'weather': '!weather <location> for weather report at specified location.',
+                'youtube': '!youtube <query> to search for youtube video.',
+                'latex': '!latex <query> to compile latex into png.',
+                'tex': '!tex <query> to compile latex into unicode.',
+                'music': '!music <query> to search for music video on youtube.'
+            }
+            return commands.get(query[1], "Invalid command")
+        else:
+            return "corona news weather youtube latex tex music"
+
     else:
         found_urls = re.findall(r'(https?://[^\s]+)', message)
         for url in found_urls:
-            return get_url_info(url)
+            info = get_url_info(url)
+            if info:
+                return info
