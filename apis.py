@@ -1,21 +1,9 @@
 import requests
-import random
-import corona
 import datetime
 import re
 from urllib.parse import urlparse, parse_qs
 from apikeys import *
 from pylatexenc.latex2text import LatexNodes2Text
-
-
-greetings = [
-    "Hello {}!",
-    "Hi {}!",
-    "Hello there {}!",
-    "Hi there {}!",
-    "Hey {}!",
-    "sup?"
-]
 
 def get_latest_news(query = None):
 
@@ -28,7 +16,8 @@ def get_latest_news(query = None):
     data = r.json()
     if data["status"] == "ok" and data["totalResults"] > 0:
         article = data["articles"][0]
-        info = '{} - {}'.format(article["url"], article["description"])
+        description = article["description"].replace('\n', ' ')
+        info = '{} - {}'.format(article["url"], description)
         return info
     else:
         return "I haven't found anything"
@@ -68,7 +57,7 @@ def get_youtube_description(query):
             description = description[:150] if len(description) > 150 else description
             parsed_url = parsed_url._replace(netloc='invidio.us') # replace youtube into invidio.us
             invidio_url = parsed_url.geturl()
-            return "{} {} - {}".format(invidio_url, title, description)
+            return "{} {} → {}".format(invidio_url, title, description)
     
 
 def search_youtube_video(query):
@@ -82,7 +71,7 @@ def search_youtube_video(query):
         title = item["snippet"]["title"]
         description = item["snippet"]["description"]
         description = description[:150] if len(description) > 150 else description
-        return "{} {} - {}".format(url, title, description)
+        return "{} {} → {}".format(url, title, description)
 
 def url_meta(url):
     req_url = "https://api.urlmeta.org/?url={}".format(url)
@@ -92,7 +81,7 @@ def url_meta(url):
         if "description" in data["meta"]:
             description = data["meta"]["description"]
             description = description[:200] if len(description) > 200 else description
-            return "{} - {}".format(title, description)
+            return "{} → {}".format(title, description)
         return title
 
 def get_url_info(url):
@@ -116,54 +105,3 @@ def latex_to_png(formula):
 
 def latex_to_text(formula):
     return LatexNodes2Text().latex_to_text(formula)
-
-
-def elaborate_query(sender, message):
-    message = message.strip()
-    if message.lower() in ["hi", "hello", "yo", "hey"]:
-        return random.choice(greetings).format(sender)
-    elif message.startswith("!corona"):
-        query = message.lower().split(" ", 1)
-        if len(query)>1:
-            query = query[1]
-            if query == "boris johnson":
-                return "Happy Hunger Games!"
-            else:
-                return corona.elaborate_query(query)
-    elif message.startswith("!news"):
-        query = message.split(" ", 1)
-        if len(query)>1:
-            news_query = query[1]
-            return get_latest_news(news_query)
-        else:
-            return get_latest_news()
-    elif message.startswith("!weather"):
-        query = message.split(" ", 1)
-        if len(query)>1:
-            location = query[1]
-            return get_weather(location)
-    elif message.startswith("!youtube"):
-        query = message.split(" ", 1)
-        if len(query)>1:
-            return search_youtube_video(query[1])
-    elif message.startswith("!tex"):
-        query = message.split(" ", 1)
-        if len(query)>1:
-            return latex_to_text(query[1])
-    elif message.startswith("!latex"):
-        query = message.split(" ", 1)
-        if len(query)>1:
-            return latex_to_png(query[1])
-    elif message == "!help":
-        return '!corona <location> for latest coronavirus report for specified location. \n'\
-                    '!news <query> for latest news related to specified query. \n'\
-                    '!weather <location> for weather report at specified location. \n'\
-                    '!youtube <query> to search for youtube video. \n'\
-                    '!latex <query> to compile latex into png. \n'\
-                    '!tex <query> to compile latex into unicode.'
-    else:
-        found_urls = re.findall(r'(https?://[^\s]+)', message)
-        for url in found_urls:
-            return get_url_info(url)
-
-    return ""
