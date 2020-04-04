@@ -1,6 +1,7 @@
 from apis import *
 import random
 import corona
+import game
 
 greetings = [
     "Hello {}!",
@@ -10,6 +11,8 @@ greetings = [
     "Hey {}!",
     "sup?"
 ]
+
+game = game.Game()
 
 def elaborate_query(sender, message):
     message = message.strip()
@@ -51,6 +54,11 @@ def elaborate_query(sender, message):
         query = message.split(" ", 1)
         if len(query)>1:
             return latex_to_png(query[1])
+    elif message.startswith("!game"):
+        query = message.split(" ", 1)
+        if len(query)>1:
+            global game
+            return game.elaborate_query(query[1])
     elif message.startswith("!help"):
         query = message.split(" ", 1)
         if len(query)>1:

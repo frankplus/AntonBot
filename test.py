@@ -4,4 +4,6 @@ import sys
 import corona 
 import bot
 
-print(bot.elaborate_query("usertest", sys.argv[1]))
+while True:
+    query = input()
+    print(bot.elaborate_query("usertest", query))

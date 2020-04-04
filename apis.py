@@ -46,6 +46,7 @@ def get_youtube_videoinfo(item):
     title = item["snippet"]["title"]
     description = item["snippet"]["description"]
     description = description[:150] if len(description) > 150 else description
+    description = description.replace('\n', ' ')
     return "{} → {}".format(title, description)
 
 
@@ -91,6 +92,7 @@ def url_meta(url):
         if "description" in data["meta"]:
             description = data["meta"]["description"]
             description = description[:200] if len(description) > 200 else description
+            description = description.replace('\n', ' ')
             return "{} → {}".format(title, description)
         return title
 
