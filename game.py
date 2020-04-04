@@ -4,6 +4,7 @@ import operator
 import random
 import html
 import json
+from urllib.parse import urlencode
 
 """
 Example of a question:
@@ -21,28 +22,56 @@ Example of a question:
 
 class GameState(Enum):
     stop = 0
-    started = 1
+    participants = 1
+    started = 2
 
-def request_questions(num_questions):
-    url = 'https://opentdb.com/api.php?amount={}&type=multiple'.format(num_questions)
+def request_questions(num_questions, difficulty = None, category = None):
+    q = {'amount':num_questions, 'type': 'multiple'}
+    if category:
+        q['category'] = category
+    if difficulty:
+        q['difficulty'] = difficulty
+    url = "https://opentdb.com/api.php?"+urlencode(q)
     data = requests.get(url).json()
     if data["response_code"] == 0:
         return data["results"]
 
+def get_categories():
+    url = "https://opentdb.com/api_category.php"
+    data = requests.get(url).json()
+    response = ""
+    for category in data["trivia_categories"]:
+        response += "{}: {}; ".format(category["id"], category["name"])
+    return response
+
+def get_help():
+    return '!game [(easy/medium/hard) [id_category]] to start game.\n'\
+            '"!game categories" to show possible categories. \n'\
+            '"!game leaderboard" to show leaderboard. \n'\
+            '"!game stop" to stop game.'
+
 class Game:
     def __init__(self):
         self.gamestate = GameState.stop
-        self.num_rounds = 1
+        self.num_rounds = 4
 
     def start_game(self, query):
-        self.players = query.split()
+        params = query.split()
+        self.difficulty = params[0] if len(params) > 0 else None
+        self.category = params[1] if len(params) > 1 else None
         self.current_player = 0
         self.round = 0
+
+    def set_participants(self, query):
+        self.players = query.split()
         self.players_points = dict()
         for player in self.players:
             self.players_points[player] = 0
-        self.questions = request_questions(len(self.players) * self.num_rounds)
-        return "Game started! \n"
+
+    def set_questions(self):
+        self.questions = request_questions(len(self.players) * self.num_rounds, self.difficulty, self.category)
+        if self.questions:
+            return "Game started! \n"
 
     def ask_question(self):
         player_name = self.players[self.current_player]
@@ -59,7 +88,6 @@ class Game:
             response += "{}) {} \n".format(character, unescaped_answer)
             if answer == question["correct_answer"]:
                 self.correct_answer = [character,unescaped_answer.lower()]
-                print(self.correct_answer)
         return response
 
     def answer_question(self, query):
@@ -119,10 +147,24 @@ class Game:
     def elaborate_query(self, query):
         if query == "leaderboard":
             return self.read_leaderboard()
+        elif query == "categories":
+            return get_categories()
+        elif query == "stop":
+            self.gamestate = GameState.stop
+            return "Game stopped"
         elif self.gamestate == GameState.stop:
-            response = self.start_game(query)
-            response += self.ask_question()
-            self.gamestate = GameState.started
+            self.start_game(query)
+            response = "Type the space separated participants names (!game <names...>): "
+            self.gamestate = GameState.participants
+        elif self.gamestate == GameState.participants:
+            self.set_participants(query)
+            response = self.set_questions()
+            if response:
+                response += self.ask_question()
+                self.gamestate = GameState.started
+            else:
+                response = "Error retrieving questions"
+                self.gamestate = GameState.stop
         elif self.gamestate == GameState.started:
             response = self.answer_question(query)
             self.next_player()

@@ -12,7 +12,7 @@ greetings = [
     "sup?"
 ]
 
-game = game.Game()
+game_instance = game.Game()
 
 def elaborate_query(sender, message):
     message = message.strip()
@@ -56,24 +56,27 @@ def elaborate_query(sender, message):
             return latex_to_png(query[1])
     elif message.startswith("!game"):
         query = message.split(" ", 1)
+        global game_instance
         if len(query)>1:
-            global game
-            return game.elaborate_query(query[1])
+            return game_instance.elaborate_query(query[1])
+        else:
+            return game_instance.elaborate_query("")
     elif message.startswith("!help"):
+        commands = {
+            'corona': '!corona <location> for latest coronavirus report for specified location.',
+            'news': '!news <query> for latest news related to specified query.',
+            'weather': '!weather <location> for weather report at specified location.',
+            'youtube': '!youtube <query> to search for youtube video.',
+            'latex': '!latex <query> to compile latex into png.',
+            'tex': '!tex <query> to compile latex into unicode.',
+            'music': '!music <query> to search for music video on youtube.',
+            'game': game.get_help()
+        }
         query = message.split(" ", 1)
         if len(query)>1:
-            commands = {
-                'corona': '!corona <location> for latest coronavirus report for specified location.',
-                'news': '!news <query> for latest news related to specified query.',
-                'weather': '!weather <location> for weather report at specified location.',
-                'youtube': '!youtube <query> to search for youtube video.',
-                'latex': '!latex <query> to compile latex into png.',
-                'tex': '!tex <query> to compile latex into unicode.',
-                'music': '!music <query> to search for music video on youtube.'
-            }
             return commands.get(query[1], "Invalid command")
         else:
-            return "COMMANDS: corona news weather youtube latex tex music \nSee !help <command>"
+            return "COMMANDS: {} \nSee !help <command> for details".format(" ".join(commands.keys()))
 
     else:
         found_urls = re.findall(r'(https?://[^\s]+)', message)
