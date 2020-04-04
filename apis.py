@@ -78,7 +78,7 @@ def search_youtube_video(query, music=False):
     if len(items) > 0:
         item = items[0]
         video_id = item["id"]["videoId"]
-        url = "https://www.invidio.us/watch?v={}".format(video_id)
+        url = "https://www.youtube.com/watch?v={}".format(video_id)
         info = get_youtube_videoinfo(item)
         return "{} {}".format(url, info)
 

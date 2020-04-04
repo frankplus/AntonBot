@@ -53,7 +53,7 @@ def get_help():
 class Game:
     def __init__(self):
         self.gamestate = GameState.stop
-        self.num_rounds = 4
+        self.num_rounds = 3
 
     def start_game(self, query):
         params = query.split()
@@ -76,16 +76,20 @@ class Game:
     def ask_question(self):
         player_name = self.players[self.current_player]
         question = self.questions.pop()
-        category = question["category"]
-        response = "{}, This is a question about {} \n".format(player_name, category)
-        response += html.unescape(question["question"]) + '\n'
+
+        if not self.category:
+            category = question["category"]
+            response = "{}, This is a question about \x0303{}\x03 \n".format(player_name, category)
+        else:
+            response = "{}, it's your turn! \n".format(player_name)
+        response += "> {} \n".format(html.unescape(question["question"]))
         answers = question["incorrect_answers"].copy()
         answers.append(question["correct_answer"])
         random.shuffle(answers)
         for i,answer in enumerate(answers):
             character = chr(ord('a')+i)
             unescaped_answer = html.unescape(answer)
-            response += "{}) {} \n".format(character, unescaped_answer)
+            response += "\x02{}) {}\x02 \n".format(character.upper(), unescaped_answer)
             if answer == question["correct_answer"]:
                 self.correct_answer = [character,unescaped_answer.lower()]
         return response
@@ -93,10 +97,10 @@ class Game:
     def answer_question(self, query):
         player_name = self.players[self.current_player]
         if query.lower() in self.correct_answer:
-            response = "Correct answer, {}! \n".format(player_name)
+            response = "\x0303Correct answer\x03, {}! ✓\n".format(player_name)
             self.players_points[player_name] += 1
         else:
-            response = "Wrong answer, {}... The correct answer was: {} \n".format(player_name, self.correct_answer[1])
+            response = "\x0304Wrong answer\x03, {}... The correct answer was: \x02{}\x02 \n".format(player_name, self.correct_answer[1])
 
         return response
     
@@ -131,7 +135,7 @@ class Game:
             return "Leaderboard is empty"
         
         response = ""
-        for player,points in leaderboard.items():
+        for player,points in sorted(leaderboard.items(), key=lambda x: x[1], reverse=True):
             response += "{}: {} points \n".format(player, points)
         return response
 
@@ -140,18 +144,18 @@ class Game:
         winners = [player for player,score in self.players_points.items() if score == max_score]
         winners = " and ".join(winners)
         response = "Game finished! And the winner is... {}! Congratulations! \n".format(winners)
-        for player,points in self.players_points.items():
+        for player,points in sorted(self.players_points.items(), key=lambda x: x[1], reverse=True):
             response += "{}: {} points \n".format(player, points)
         return response
 
     def elaborate_query(self, query):
         if query == "leaderboard":
-            return self.read_leaderboard()
+            response = self.read_leaderboard()
         elif query == "categories":
-            return get_categories()
+            response = get_categories()
         elif query == "stop":
             self.gamestate = GameState.stop
-            return "Game stopped"
+            response = "Game stopped"
         elif self.gamestate == GameState.stop:
             self.start_game(query)
             response = "Type the space separated participants names (!game <names...>): "
