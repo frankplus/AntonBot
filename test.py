@@ -6,4 +6,4 @@ import bot
 
 while True:
     query = input()
-    print(bot.elaborate_query("usertest", query))
+    print(bot.elaborate_query("MrFrank", query))

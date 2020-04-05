@@ -13,13 +13,13 @@ git clone https://github.com/frankplus/coronavirus-irc-bot
 cd coronavirus-irc-bot
 pip install .
 ```
+See ircbot.py to set channel name and bot name
+
 ### Run
 `python3 ircbot.py`
 
-To run the bot in the backgorund execute this instead:\
+To run the bot in the background execute this instead:\
 `nohup python3 ./ircbot.py &` 
-
-See ircbot.py to set channel name and bot name
 
 ## Commands
 `!corona <location>` for latest coronavirus report for specified location. \

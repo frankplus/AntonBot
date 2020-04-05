@@ -26,7 +26,7 @@ class GameState(Enum):
     started = 2
 
 def request_questions(num_questions, difficulty = None, category = None):
-    q = {'amount':num_questions, 'type': 'multiple'}
+    q = {'amount':num_questions}
     if category:
         q['category'] = category
     if difficulty:
@@ -45,7 +45,7 @@ def get_categories():
     return response
 
 def get_help():
-    return '!game [(easy/medium/hard) [id_category]] to start game.\n'\
+    return '!game [easy/medium/hard] [id_category] to start game.\n'\
             '"!game categories" to show possible categories. \n'\
             '"!game leaderboard" to show leaderboard. \n'\
             '"!game stop" to stop game.'
@@ -57,8 +57,21 @@ class Game:
 
     def start_game(self, query):
         params = query.split()
-        self.difficulty = params[0] if len(params) > 0 else None
-        self.category = params[1] if len(params) > 1 else None
+
+        if len(params) > 1:
+            self.difficulty = params[0]
+            self.category = params[1]
+        elif len(params) > 0:
+            if params[0] in ['easy', 'medium', 'hard']:
+                self.difficulty = params[0]
+                self.category = None
+            else:
+                self.difficulty = None
+                self.category = params[0]
+        else:
+            self.category = None
+            self.difficulty = None
+        
         self.current_player = 0
         self.round = 0
 
@@ -148,7 +161,7 @@ class Game:
             response += "{}: {} points \n".format(player, points)
         return response
 
-    def elaborate_query(self, query):
+    def elaborate_query(self, sender, query):
         if query == "leaderboard":
             response = self.read_leaderboard()
         elif query == "categories":
@@ -170,13 +183,14 @@ class Game:
                 response = "Error retrieving questions"
                 self.gamestate = GameState.stop
         elif self.gamestate == GameState.started:
-            response = self.answer_question(query)
-            self.next_player()
-            if self.round < self.num_rounds:
-                response += self.ask_question()
-            else:
-                response += self.finish_game()
-                self.update_leaderboard()
-                self.gamestate = GameState.stop
+            if sender == self.players[self.current_player]:
+                response = self.answer_question(query)
+                self.next_player()
+                if self.round < self.num_rounds:
+                    response += self.ask_question()
+                else:
+                    response += self.finish_game()
+                    self.update_leaderboard()
+                    self.gamestate = GameState.stop
                 
         return response

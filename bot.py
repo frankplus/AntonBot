@@ -58,9 +58,9 @@ def elaborate_query(sender, message):
         query = message.split(" ", 1)
         global game_instance
         if len(query)>1:
-            return game_instance.elaborate_query(query[1])
+            return game_instance.elaborate_query(sender, query[1])
         else:
-            return game_instance.elaborate_query("")
+            return game_instance.elaborate_query(sender, "")
     elif message.startswith("!help"):
         commands = {
             'corona': '!corona <location> for latest coronavirus report for specified location.',
