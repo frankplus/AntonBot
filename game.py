@@ -192,5 +192,7 @@ class Game:
                     response += self.finish_game()
                     self.update_leaderboard()
                     self.gamestate = GameState.stop
+            else:
+                response = "{}, it's not your turn!!".format(sender)
                 
         return response
