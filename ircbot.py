@@ -40,9 +40,13 @@ def send_rss_updates():
         for line in lines:
             conn.send_message(channel, line)
 
+
 def run_rss_thread():
+    
+    send_rss_updates()
+
     RSS_REFRESH_INTERVAL = 60.0 # in seconds
-    t = threading.Timer(RSS_REFRESH_INTERVAL, send_rss_updates)
+    t = threading.Timer(RSS_REFRESH_INTERVAL, run_rss_thread)
     t.start()
 
 
