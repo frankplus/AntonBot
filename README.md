@@ -29,4 +29,4 @@ To run the bot in the background execute this instead:\
 `!latex <query>` to compile latex into png.\
 `!tex <query>` to compile latex into unicode.\
 `!music <query>` to search for music video on youtube.\
-`!game [(easy/medium/hard)` [id_category]] to start game.
+`!game [easy/medium/hard] [id_category]` to start game.

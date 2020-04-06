@@ -1,7 +1,7 @@
 from distutils.core import setup
 setup(
     name = "CoronaBot",
-    py_modules = ["JustIRC"],
+    py_modules = ["JustIRC", "pylatexenc", "miniflux"],
     version = "0.1.0",
     description = "An IRC bot for coronavirus reports, news search and other.",
     author = "Francesco Pham",
