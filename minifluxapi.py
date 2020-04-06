@@ -14,8 +14,11 @@ def get_new_entries(limit = 1):
         response += "\x0303[miniflux]\x03 {} {} on {} \x02→\x02 {} \n".format(entry["url"], entry["author"], publish_date, entry["title"])
     
     # mark entries as read
-    entry_ids = [entry["id"] for entry in entries]
-    client.update_entries(entry_ids, status="read")
+    if entries:
+        entry_ids = [entry["id"] for entry in entries]
+        client.update_entries(entry_ids, status="read")
+
+        print(response)
 
     return response
 
