@@ -4,6 +4,8 @@ import JustIRC
 import bot
 import threading
 import minifluxapi as rss
+from timeloop import Timeloop
+from datetime import timedelta
 
 channel = "#bugbyte-ita"
 botname = "CovidBot"
@@ -33,21 +35,15 @@ def on_private_message(conn, sender, message):
             conn.send_message(sender, line)
 
 ### RSS FEED ###
+rss_thread = Timeloop()
+
+@rss_thread.job(interval=timedelta(seconds=60))
 def send_rss_updates():
     response = rss.get_new_entries()
     if response:
         lines = response.split("\n")
         for line in lines:
             conn.send_message(channel, line)
-
-def run_rss_thread():
-
-    send_rss_updates()
-
-    RSS_REFRESH_INTERVAL = 60.0 # in seconds
-    t = threading.Timer(RSS_REFRESH_INTERVAL, run_rss_thread)
-    t.start()
-
 
 conn.on_connect.append(on_connect)
 conn.on_welcome.append(on_welcome)
@@ -56,6 +52,6 @@ conn.on_private_message.append(on_private_message)
 
 conn.connect(irc_server_address)
 
-run_rss_thread()
+rss_thread.start()
 conn.run_loop()
 
