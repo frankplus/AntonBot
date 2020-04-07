@@ -12,6 +12,9 @@ def get_new_entries(limit = 1):
     except miniflux.ClientError as err:
         print("miniflux client error: {}".format(err.get_error_reason()), flush=True)
         return None
+    except:
+        print("Unexpected error getting RSS entries", flush=True)
+        return None
 
     response = ""
     for entry in entries:
