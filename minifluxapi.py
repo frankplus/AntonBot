@@ -5,7 +5,13 @@ from datetime import datetime
 client = miniflux.Client(miniflux_url, miniflux_user, miniflux_psw)
 
 def get_new_entries(limit = 1):
-    entries = client.get_entries(status="unread", limit=limit)["entries"]
+    global client
+
+    try:
+        entries = client.get_entries(status="unread", limit=limit)["entries"]
+    except miniflux.ClientError as err:
+        print("miniflux client error: {}".format(err.get_error_reason()), flush=True)
+        return None
 
     response = ""
     for entry in entries:
@@ -17,8 +23,6 @@ def get_new_entries(limit = 1):
     if entries:
         entry_ids = [entry["id"] for entry in entries]
         client.update_entries(entry_ids, status="read")
-
-        print(response)
 
     return response
 
