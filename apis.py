@@ -4,6 +4,7 @@ import re
 from urllib.parse import urlparse, parse_qs, urlencode
 from apikeys import *
 from pylatexenc.latex2text import LatexNodes2Text
+from utils import json_request
 
 def get_latest_news(query = None):
 
@@ -12,8 +13,9 @@ def get_latest_news(query = None):
     else:
         url = 'http://newsapi.org/v2/top-headlines?country=it&sortBy=publishedAt&apiKey={}'.format(newsapi_key)
         
-    r = requests.get(url)
-    data = r.json()
+    data = json_request(url)
+    if not data:
+        return None
     if data["status"] == "ok" and data["totalResults"] > 0:
         article = data["articles"][0]
         description = article["description"].replace('\n', ' ')
@@ -25,7 +27,9 @@ def get_latest_news(query = None):
 def get_weather(location):
 
     url = 'http://api.openweathermap.org/data/2.5/forecast?q={}&units=metric&appid={}'.format(location, openweather_key)
-    data = requests.get(url).json()
+    data = json_request(url)
+    if not data:
+        return None
     if data["cod"] == '200':
         name = data["city"]["name"]
         today = data["list"][0]
@@ -59,7 +63,9 @@ def get_youtube_description(query):
     if "v" in url_queries:
         video_id = url_queries["v"][0]
         url = 'https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id={}&key={}'.format(video_id, youtube_key)
-        data = requests.get(url).json()
+        data = json_request(url)
+        if not data:
+            return None
         items = data["items"]
         if len(items) > 0:
             info = get_youtube_videoinfo(items[0])
@@ -72,8 +78,9 @@ def search_youtube_video(query, music=False):
     if music:
         q['videoCategoryId'] = 10
     url = "https://www.googleapis.com/youtube/v3/search?"+urlencode(q)
-    data = requests.get(url).json()
-    print(url)
+    data = json_request(url)
+    if not data:
+        return None
     items = data["items"]
     if len(items) > 0:
         item = items[0]
@@ -86,7 +93,9 @@ def search_youtube_video(query, music=False):
 
 def url_meta(url):
     req_url = "https://api.urlmeta.org/?url={}".format(url)
-    data = requests.get(req_url, headers={'Authorization': urlmeta_api_authorization}).json()
+    data = json_request(req_url, headers={'Authorization': urlmeta_api_authorization})
+    if not data:
+        return None
     if data["result"]["status"] == "OK":
         title = data["meta"]["title"]
         if "description" in data["meta"]:

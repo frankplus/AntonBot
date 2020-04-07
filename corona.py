@@ -1,4 +1,4 @@
-import requests
+from utils import json_request
 
 irc_formatting = True
 
@@ -12,8 +12,9 @@ def format(number, sign = False):
         return str(number)
 
 def get_country_status(query):
-    r = requests.get('https://coronavirus-tracker-api.herokuapp.com/v2/locations')
-    data = r.json()
+    data = json_request('https://coronavirus-tracker-api.herokuapp.com/v2/locations')
+    if not data:
+        return None
 
     for location in data["locations"]:
         if location["country"].lower() == query and location["province"] == "":
@@ -21,8 +22,9 @@ def get_country_status(query):
             confirmed = format(location["latest"]["confirmed"])
             deaths = format(location["latest"]["deaths"])
 
-            r = requests.get('https://coronavirus-tracker-api.herokuapp.com/v2/locations/' + str(id))
-            data = r.json()
+            data = json_request('https://coronavirus-tracker-api.herokuapp.com/v2/locations/' + str(id))
+            if not data:
+                return None
 
             #confirmed
             timeline = data["location"]["timelines"]["confirmed"]["timeline"]
@@ -36,8 +38,10 @@ def get_country_status(query):
             return info
 
 def get_italy_status():
-    r = requests.get('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-andamento-nazionale.json')
-    data = r.json()
+    data = json_request('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-andamento-nazionale.json')
+    if not data:
+        return None
+
     latest = data[-1]
     yesterday = data[-2]
     totale_positivi = format(latest["totale_positivi"])
@@ -55,8 +59,10 @@ def get_italy_status():
     return info
 
 def get_italy_regione(query):
-    r = requests.get('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni-latest.json')
-    data = r.json()
+    data = json_request('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni-latest.json')
+    if not data:
+        return None
+
     for regione in data:
         if regione["denominazione_regione"].lower() == query:
             totale_positivi = format(regione["totale_positivi"])
@@ -73,8 +79,10 @@ def get_italy_regione(query):
             return info
 
 def get_italy_province(query):
-    r = requests.get('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-province-latest.json')
-    data = r.json()
+    data = json_request('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-province-latest.json')
+    if not data:
+        return None
+
     for provincia in data:
         if provincia["denominazione_provincia"].lower() == query:
             totale_casi = format(provincia["totale_casi"])
@@ -84,8 +92,9 @@ def get_italy_province(query):
 
 
 def get_global_status():
-    r = requests.get('https://coronavirus-tracker-api.herokuapp.com/v2/latest')
-    data = r.json()
+    data = json_request('https://coronavirus-tracker-api.herokuapp.com/v2/latest')
+    if not data:
+        return None
 
     confirmed = format(data["latest"]["confirmed"])
     deaths = format(data["latest"]["deaths"])
