@@ -6,6 +6,20 @@ from apikeys import *
 from pylatexenc.latex2text import LatexNodes2Text
 from utils import json_request
 
+class Cleverbot:
+    def __init__(self):
+        self.cleverbot_state = None
+
+    def elaborate_query(self, query):
+        q = {'key': cleverbot_key, 'input': query}
+        if self.cleverbot_state:
+            q['cs'] = self.cleverbot_state
+        url = 'https://www.cleverbot.com/getreply?' + urlencode(q)
+        data = json_request(url)
+        if data:
+            self.cleverbot_state = data["cs"]
+            return data["output"]
+
 def get_latest_news(query = None):
 
     if query:

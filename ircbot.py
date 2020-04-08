@@ -6,10 +6,7 @@ import threading
 import minifluxapi as rss
 from timeloop import Timeloop
 from datetime import timedelta
-
-channel = "#bugbyte-ita"
-botname = "CovidBot"
-irc_server_address = "irc.freenode.net"
+from utils import channel, botname, irc_server_address
 
 conn = JustIRC.IRCConnection()
 

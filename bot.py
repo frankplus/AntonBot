@@ -2,6 +2,7 @@ from apis import *
 import random
 import corona
 import game
+from utils import botname
 
 greetings = [
     "Hello {}!",
@@ -13,12 +14,11 @@ greetings = [
 ]
 
 game_instance = game.Game()
+cleverbot = Cleverbot()
 
 def elaborate_query(sender, message):
     message = message.strip()
-    if message.lower() in ["hi", "hello", "yo", "hey"]:
-        return random.choice(greetings).format(sender)
-    elif message.startswith("!corona"):
+    if message.startswith("!corona"):
         query = message.lower().split(" ", 1)
         if len(query)>1:
             query = query[1]
@@ -77,10 +77,22 @@ def elaborate_query(sender, message):
             return commands.get(query[1], "Invalid command")
         else:
             return "COMMANDS: {} \nSee !help <command> for details".format(" ".join(commands.keys()))
-
+    elif message.lower() in ["hi", "hello", "yo", "hey"]:
+        return random.choice(greetings).format(sender)
     else:
         found_urls = re.findall(r'(https?://[^\s]+)', message)
         for url in found_urls:
             info = get_url_info(url)
             if info:
                 return info
+
+    # cleverbot
+    pos = message.find(botname)
+    if pos != -1:
+        if pos == 0:
+            split = message.split(' ', 1)
+            if len(split) > 1:
+                message = split[1]
+        else:
+            message = message.replace(botname, 'CleverBot')
+        return cleverbot.elaborate_query(message)

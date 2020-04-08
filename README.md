@@ -13,7 +13,7 @@ git clone https://github.com/frankplus/coronavirus-irc-bot
 cd coronavirus-irc-bot
 pip install .
 ```
-See ircbot.py to set channel name and bot name
+See ircbot.py and utils.py to set channel name and bot name
 
 ### Run
 `python3 ircbot.py`
@@ -30,3 +30,7 @@ To run the bot in the background execute this instead:\
 `!tex <query>` to compile latex into unicode.\
 `!music <query>` to search for music video on youtube.\
 `!game [easy/medium/hard] [id_category]` to start game.
+
+## Other features
+- Cleverbot
+- scan messages for urls and send reply with info about its content 
