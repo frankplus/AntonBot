@@ -1,9 +1,9 @@
 import requests
 from requests.exceptions import Timeout
 
-def json_request(url):
+def json_request(url, headers=None):
     try:
-        r = requests.get(url, timeout=5)
+        r = requests.get(url, timeout=5, headers=headers)
     except Timeout:
         print('The request timed out. url: {}'.format(url))
         return None
