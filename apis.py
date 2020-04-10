@@ -3,8 +3,8 @@ import datetime
 import re
 from urllib.parse import urlparse, parse_qs, urlencode
 from apikeys import *
-from pylatexenc.latex2text import LatexNodes2Text
 from utils import json_request
+import pypandoc
 
 class Cleverbot:
     def __init__(self):
@@ -135,4 +135,8 @@ def latex_to_png(formula):
     return r.url
 
 def latex_to_text(formula):
-    return LatexNodes2Text().latex_to_text(formula)
+    latex = '${}$'.format(formula)
+    try:
+        return pypandoc.convert_text(latex, 'plain', format='latex')
+    except:
+        return None
