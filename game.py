@@ -5,6 +5,7 @@ import random
 import html
 from utils import json_request
 from urllib.parse import urlencode
+import json
 
 """
 Example of a question:
