@@ -132,9 +132,10 @@ class Game:
         try:
             f = open("leaderboard.txt", "r")
             leaderboard = json.load(f)
-            f.close()
         except FileNotFoundError:
             leaderboard = dict()
+        finally:
+            f.close()
         
         for player,points in self.players_points.items():
             if player not in leaderboard:
@@ -148,9 +149,10 @@ class Game:
         try:
             f = open("leaderboard.txt", "r")
             leaderboard = json.load(f)
-            f.close()
         except FileNotFoundError:
             return "Leaderboard is empty"
+        finally:
+            f.close()
         
         response = ""
         for player,points in sorted(leaderboard.items(), key=lambda x: x[1], reverse=True):

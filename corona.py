@@ -17,7 +17,7 @@ def get_country_status(query):
         return None
 
     for location in data["locations"]:
-        if location["country"].lower() == query and location["province"] == "":
+        if (location["country"].lower() == query and location["province"] == "") or location["province"].lower() == query:
             id = location["id"]
             confirmed = format(location["latest"]["confirmed"])
             deaths = format(location["latest"]["deaths"])

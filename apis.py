@@ -62,10 +62,13 @@ def get_weather(location):
 
 def get_youtube_videoinfo(item):
     title = item["snippet"]["title"]
+    channel = item["snippet"]["channelTitle"]
     description = item["snippet"]["description"]
     description = description[:150] if len(description) > 150 else description
     description = description.replace('\n', ' ')
-    return "{} → {}".format(title, description)
+    publish_date = datetime.datetime.strptime(item["snippet"]["publishedAt"], "%Y-%m-%dT%H:%M:%S.%f%z")
+    publish_date = publish_date.strftime("%b %d %Y")
+    return "{} on {} \x02{} →\x02 {}".format(channel, publish_date, title, description)
 
 
 def get_youtube_description(query):
@@ -83,7 +86,7 @@ def get_youtube_description(query):
         items = data["items"]
         if len(items) > 0:
             info = get_youtube_videoinfo(items[0])
-            return "{} {}".format(invidio_url, info)
+            return "\x0303[youtube]\x03 {} {}".format(invidio_url, info)
     
 
 def search_youtube_video(query, music=False):
@@ -101,7 +104,7 @@ def search_youtube_video(query, music=False):
         video_id = item["id"]["videoId"]
         url = "https://www.youtube.com/watch?v={}".format(video_id)
         info = get_youtube_videoinfo(item)
-        return "{} {}".format(url, info)
+        return "\x0303[youtube]\x03 {} {}".format(url, info)
 
     return "I haven't found anything"
 
