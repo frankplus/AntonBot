@@ -1,4 +1,5 @@
 from apis import *
+import re
 import random
 import corona
 import game
