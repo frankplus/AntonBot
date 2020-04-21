@@ -119,7 +119,7 @@ def url_meta(url):
         return None
     soup = BeautifulSoup(resp.text, 'lxml')
     meta = ""
-    title = soup.title.text
+    title = soup.title.text.strip().replace('\n', ' ')
     if title:
         meta += f'\x0303<title>\x03 {title} \n'
     description = soup.find('meta', {'name':'description'})
@@ -128,8 +128,7 @@ def url_meta(url):
     description = description.get('content')
     if not description:
         return meta
-    description = description[:200]
-    description = description.replace('\n', ' ')
+    description = description[:200].strip().replace('\n', ' ')
     meta += f'\x0303<description>\x03 {description} \n'
     return meta
 
