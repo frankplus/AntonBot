@@ -5,6 +5,7 @@ from urllib.parse import urlparse, parse_qs, urlencode
 from apikeys import *
 from utils import json_request
 import pypandoc
+from bs4 import BeautifulSoup
 
 class Cleverbot:
     def __init__(self):
@@ -113,18 +114,24 @@ def search_youtube_video(query, music=False):
     return "I haven't found anything"
 
 def url_meta(url):
-    req_url = "https://api.urlmeta.org/?url={}".format(url)
-    data = json_request(req_url, headers={'Authorization': urlmeta_api_authorization})
-    if not data:
+    resp = requests.get(url)
+    if resp.status_code != 200:
         return None
-    if data["result"]["status"] == "OK":
-        title = data["meta"]["title"]
-        if "description" in data["meta"]:
-            description = data["meta"]["description"]
-            description = description[:200] if len(description) > 200 else description
-            description = description.replace('\n', ' ')
-            return "{} → {}".format(title, description)
-        return title
+    soup = BeautifulSoup(resp.text, 'lxml')
+    meta = ""
+    title = soup.title.text
+    if title:
+        meta += f'\x0303<title>\x03 {title} \n'
+    description = soup.find('meta', {'name':'description'})
+    if not description:
+        return meta
+    description = description.get('content')
+    if not description:
+        return meta
+    description = description[:200]
+    description = description.replace('\n', ' ')
+    meta += f'\x0303<description>\x03 {description} \n'
+    return meta
 
 def get_url_info(url):
     response = get_youtube_description(url)
