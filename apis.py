@@ -6,6 +6,7 @@ from apikeys import *
 from utils import json_request
 import pypandoc
 from bs4 import BeautifulSoup
+import traceback
 
 class Cleverbot:
     def __init__(self):
@@ -114,7 +115,12 @@ def search_youtube_video(query, music=False):
     return "I haven't found anything"
 
 def url_meta(url):
-    resp = requests.get(url)
+    try:
+        resp = requests.get(url)
+    except:
+        print('Error requesting url: {}'.format(url))
+        print(traceback.format_exc())
+        
     if resp.status_code != 200:
         return None
     soup = BeautifulSoup(resp.text, 'lxml')
