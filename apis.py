@@ -3,7 +3,7 @@ import datetime
 import re
 from urllib.parse import urlparse, parse_qs, urlencode
 from apikeys import *
-from utils import json_request
+from utils import json_request, http_request
 import pypandoc
 from bs4 import BeautifulSoup
 import traceback
@@ -115,13 +115,8 @@ def search_youtube_video(query, music=False):
     return "I haven't found anything"
 
 def url_meta(url):
-    try:
-        resp = requests.get(url)
-    except:
-        print('Error requesting url: {}'.format(url))
-        print(traceback.format_exc())
-        
-    if resp.status_code != 200:
+    resp = http_request(url)
+    if not resp:
         return None
     soup = BeautifulSoup(resp.text, 'lxml')
     meta = ""

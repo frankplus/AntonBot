@@ -6,9 +6,15 @@ channel = "#bugbyte-ita"
 botname = "CovidBot"
 irc_server_address = "irc.freenode.net"
 
-def json_request(url, headers=None):
+def json_request(url):
+    return http_request(url, json=True)
+
+def http_request(url, json=False, headers=None):
+
+    TIMEOUT = 5 # timeout in seconds
+
     try:
-        r = requests.get(url, timeout=5, headers=headers)
+        r = requests.get(url, timeout=TIMEOUT, headers=headers)
     except Timeout:
         print('The request timed out. url: {}'.format(url))
         return None
@@ -21,4 +27,4 @@ def json_request(url, headers=None):
         print("Error requesting {} status code = {}".format(url, r.status_code))
         return None
 
-    return r.json()
+    return r.json() if json else r
