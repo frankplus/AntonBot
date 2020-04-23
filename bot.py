@@ -62,6 +62,10 @@ def elaborate_query(sender, message):
             return game_instance.elaborate_query(sender, query[1])
         else:
             return game_instance.elaborate_query(sender, "")
+    elif message.startswith("!wolfram"):
+        query = message.split(" ", 1)
+        if len(query)>1:
+            return wolfram_req(query[1])
     elif message.startswith("!help"):
         commands = {
             'corona': '!corona <location> for latest coronavirus report for specified location.',
@@ -95,5 +99,5 @@ def elaborate_query(sender, message):
             if len(split) > 1:
                 message = split[1]
         else:
-            message = message.replace(botname, 'CleverBot')
+            message = message.replace(botname, ' ')
         return cleverbot.elaborate_query(message)
