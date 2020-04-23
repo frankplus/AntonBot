@@ -28,5 +28,3 @@ def get_new_entries(limit = 1):
         client.update_entries(entry_ids, status="read")
 
     return response
-
-# print(get_new_entries())

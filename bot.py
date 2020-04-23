@@ -75,7 +75,8 @@ def elaborate_query(sender, message):
             'latex': '!latex <query> to compile latex into png.',
             'tex': '!tex <query> to compile latex into unicode.',
             'music': '!music <query> to search for music video on youtube.',
-            'game': game.get_help()
+            'game': game.get_help(),
+            'wolfram': '!wolfram <query> to calculate or ask any question.'
         }
         query = message.split(" ", 1)
         if len(query)>1:

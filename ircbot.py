@@ -31,7 +31,7 @@ def on_private_message(conn, sender, message):
         for line in lines:
             conn.send_message(sender, line)
 
-### RSS FEED ###
+# rss feed
 rss_thread = Timeloop()
 
 @rss_thread.job(interval=timedelta(seconds=60))
@@ -42,6 +42,7 @@ def send_rss_updates():
         for line in lines:
             conn.send_message(channel, line)
 
+# connect
 conn.on_connect.append(on_connect)
 conn.on_welcome.append(on_welcome)
 conn.on_public_message.append(on_message)

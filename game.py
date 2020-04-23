@@ -8,17 +8,19 @@ from urllib.parse import urlencode
 import json
 
 """
-Example of a question:
-"category":"Entertainment: Japanese Anime & Manga",
-"type":"multiple",
-"difficulty":"medium",
-"question":"In "Toriko", which of the following foods is knowingly compatible with Toriko?",
-"correct_answer":"Poison Potato",
-"incorrect_answers":[
-  "Mors Oil",
-  "Alpacookie",
-  "Parmesansho Fruit"
-]
+    This is a quiz game to play with your friends.
+
+    Example of a question data:
+    "category":"Entertainment: Japanese Anime & Manga",
+    "type":"multiple",
+    "difficulty":"medium",
+    "question":"In "Toriko", which of the following foods is knowingly compatible with Toriko?",
+    "correct_answer":"Poison Potato",
+    "incorrect_answers":[
+    "Mors Oil",
+    "Alpacookie",
+    "Parmesansho Fruit"
+    ]
 """
 
 class GameState(Enum):
