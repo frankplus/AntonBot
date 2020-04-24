@@ -160,4 +160,4 @@ def wolfram_req(query):
     url = f'https://api.wolframalpha.com/v1/result?i={query}&appid={wolfram_key}'
     resp = http_request(url)
     if resp:
-        return resp.text
+        return resp.text.replace('\n', '. ')
