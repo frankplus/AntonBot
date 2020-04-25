@@ -37,6 +37,7 @@ rss = Miniflux()
 
 @rss_thread.job(interval=timedelta(seconds=60))
 def send_rss_updates():
+    global rss
     response = rss.get_new_entries()
     if response:
         lines = response.split("\n")
