@@ -1,0 +1,14 @@
+CHANNEL = "#bugbyte-ita"
+BOTNAME = "CovidBot"
+IRC_SERVER_ADDRESS = "irc.freenode.net"
+
+HTTP_REQUEST_TIMEOUT = 5 # timeout in seconds
+
+NEWSAPI_KEY = ''
+OPENWEATHER_KEY = ''
+YOUTUBE_KEY = ''
+MINIFLUX_URL = ''
+MINIFLUX_USER = ''
+MINIFLUX_PSW = ''
+CLEVERBOT_KEY = ''
+WOLFRAM_KEY = ''

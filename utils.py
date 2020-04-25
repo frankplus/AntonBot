@@ -1,20 +1,15 @@
 import requests
 from requests.exceptions import Timeout
 import traceback
-
-channel = "#bugbyte-ita"
-botname = "CovidBot"
-irc_server_address = "irc.freenode.net"
+from config import HTTP_REQUEST_TIMEOUT
 
 def json_request(url):
     return http_request(url, json=True)
 
 def http_request(url, json=False, headers=None):
 
-    TIMEOUT = 5 # timeout in seconds
-
     try:
-        r = requests.get(url, timeout=TIMEOUT, headers=headers)
+        r = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, headers=headers)
     except Timeout:
         print('The request timed out. url: {}'.format(url))
         return None

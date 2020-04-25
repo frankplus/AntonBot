@@ -5,5 +5,6 @@ import corona
 import bot
 
 while True:
+    print('Input: ')
     query = input()
     print(bot.elaborate_query("MrFrank", query))

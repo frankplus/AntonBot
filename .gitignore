@@ -1,5 +1,5 @@
 __pycache__/
 nohup.out
-apikeys.py
+config.py
 leaderboard.txt
-coronabot_venv
+env

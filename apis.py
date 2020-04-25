@@ -2,18 +2,19 @@ import requests
 import datetime
 import re
 from urllib.parse import urlparse, parse_qs, urlencode
-from apikeys import *
+from config import *
 from utils import json_request, http_request
 import pypandoc
 from bs4 import BeautifulSoup
 import traceback
+import miniflux
 
 class Cleverbot:
     def __init__(self):
         self.cleverbot_state = None
 
     def elaborate_query(self, query):
-        q = {'key': cleverbot_key, 'input': query}
+        q = {'key': CLEVERBOT_KEY, 'input': query}
         if self.cleverbot_state:
             q['cs'] = self.cleverbot_state
         url = 'https://www.cleverbot.com/getreply?' + urlencode(q)
@@ -22,12 +23,41 @@ class Cleverbot:
             self.cleverbot_state = data["cs"]
             return data["output"]
 
+
+class Miniflux:
+    def __init__(self):
+        self.client = miniflux.Client(MINIFLUX_URL, MINIFLUX_USER, MINIFLUX_PSW)
+
+    def get_new_entries(self, limit = 1):
+        try:
+            entries = self.client.get_entries(status="unread", limit=limit)["entries"]
+        except miniflux.ClientError as err:
+            print("miniflux client error: {}".format(err.get_error_reason()), flush=True)
+            return None
+        except:
+            print("Unexpected error getting RSS entries", flush=True)
+            return None
+
+        response = ""
+        for entry in entries:
+            publish_date = datetime.strptime(entry["published_at"], "%Y-%m-%dT%H:%M:%SZ")
+            publish_date = publish_date.strftime("%Y-%m-%d")
+            response += "\x0303[miniflux]\x03 {} {} on {} \x02→\x02 {} \n".format(entry["url"], entry["author"], publish_date, entry["title"])
+        
+        # mark entries as read
+        if entries:
+            entry_ids = [entry["id"] for entry in entries]
+            self.client.update_entries(entry_ids, status="read")
+
+        return response
+
+
 def get_latest_news(query = None):
 
     if query:
-        url = 'http://newsapi.org/v2/everything?q={}&sortBy=relevancy&apiKey={}'.format(query, newsapi_key)
+        url = 'http://newsapi.org/v2/everything?q={}&sortBy=relevancy&apiKey={}'.format(query, NEWSAPI_KEY)
     else:
-        url = 'http://newsapi.org/v2/top-headlines?country=it&sortBy=publishedAt&apiKey={}'.format(newsapi_key)
+        url = 'http://newsapi.org/v2/top-headlines?country=it&sortBy=publishedAt&apiKey={}'.format(NEWSAPI_KEY)
         
     data = json_request(url)
     if not data:
@@ -42,7 +72,7 @@ def get_latest_news(query = None):
 
 def get_weather(location):
 
-    url = 'http://api.openweathermap.org/data/2.5/forecast?q={}&units=metric&appid={}'.format(location, openweather_key)
+    url = 'http://api.openweathermap.org/data/2.5/forecast?q={}&units=metric&appid={}'.format(location, OPENWEATHER_KEY)
     data = json_request(url)
     if not data:
         return None
@@ -85,7 +115,7 @@ def get_youtube_description(query):
 
     if "v" in url_queries:
         video_id = url_queries["v"][0]
-        url = 'https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id={}&key={}'.format(video_id, youtube_key)
+        url = 'https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id={}&key={}'.format(video_id, YOUTUBE_KEY)
         data = json_request(url)
         if not data:
             return None
@@ -97,7 +127,7 @@ def get_youtube_description(query):
 
 def search_youtube_video(query, music=False):
 
-    q = {'part':'snippet', 'maxResults': 1, 'type':'video', 'q': query, 'key': youtube_key}
+    q = {'part':'snippet', 'maxResults': 1, 'type':'video', 'q': query, 'key': YOUTUBE_KEY}
     if music:
         q['videoCategoryId'] = 10
     url = "https://www.googleapis.com/youtube/v3/search?"+urlencode(q)
@@ -157,7 +187,7 @@ def latex_to_text(formula):
         return None
 
 def wolfram_req(query):
-    url = f'https://api.wolframalpha.com/v1/result?i={query}&appid={wolfram_key}'
+    url = f'https://api.wolframalpha.com/v1/result?i={query}&appid={WOLFRAM_KEY}'
     resp = http_request(url)
     if resp:
         return resp.text.replace('\n', '. ')

@@ -11,15 +11,20 @@ This bot is not just for coronavirus reports but also for news, weather, youtube
 ```
 git clone https://github.com/frankplus/coronavirus-irc-bot
 cd coronavirus-irc-bot
-pip install .
+python3 -m venv env
+source env/bin/activate
+pip install -r requirements.txt
 ```
-See ircbot.py and utils.py to set channel name and bot name
+See config.py to set irc configurations and api keys.
 
 ### Run
 `python3 ircbot.py`
 
 To run the bot in the background execute this instead:\
 `nohup python3 ./ircbot.py &` 
+
+### Test
+If you just want to test the bot run `python3 test.py`
 
 ## Commands
 `!corona <location>` for latest coronavirus report for specified location. \

@@ -3,7 +3,7 @@ import re
 import random
 import corona
 import game
-from utils import botname
+from config import BOTNAME
 
 greetings = [
     "Hello {}!",
@@ -93,12 +93,12 @@ def elaborate_query(sender, message):
                 return info
 
     # cleverbot
-    pos = message.find(botname)
+    pos = message.find(BOTNAME)
     if pos != -1:
         if pos == 0:
             split = message.split(' ', 1)
             if len(split) > 1:
                 message = split[1]
         else:
-            message = message.replace(botname, ' ')
+            message = message.replace(BOTNAME, ' ')
         return cleverbot.elaborate_query(message)
