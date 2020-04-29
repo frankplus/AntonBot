@@ -8,6 +8,7 @@ import pypandoc
 from bs4 import BeautifulSoup
 import traceback
 import miniflux
+import urllib
 
 class Cleverbot:
     def __init__(self):
@@ -191,3 +192,8 @@ def wolfram_req(query):
     resp = http_request(url)
     if resp:
         return resp.text.replace('\n', '. ')
+
+def plot_function(query):
+    q = {'q': query}
+    q = urllib.parse.urlencode(q)
+    return f'https://frank.acqua.team/plasm/?q={q}'

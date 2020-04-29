@@ -4,7 +4,7 @@ An IRC bot for latest coronavirus reports.
 Global and countries data are retrieved from Johns Hopkins CSSE data repository using `ExpDev07/coronavirus-tracker-api` \
 Italian's province and regional data are retrieved from Dipartimento di Protezione Civile `pcm-dpc/COVID-19` repository.
 
-This bot is not just for coronavirus reports but also for news, weather, youtube search, wolfram queries and a fun quiz game.
+This bot is not just for coronavirus reports but also for news, youtube search, wolfram queries, a fun quiz game and more listed below.
 
 
 ## Installation
@@ -40,3 +40,4 @@ If you just want to test the bot run `python3 test.py`
 ## Other features
 - Cleverbot
 - scan messages for urls and send reply with info about its content 
+- Pulls RSS feeds from miniflux for latest updates

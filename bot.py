@@ -66,6 +66,10 @@ def elaborate_query(sender, message):
         query = message.split(" ", 1)
         if len(query)>1:
             return wolfram_req(query[1])
+    elif message.startswith("!plot"):
+        query = message.split(" ", 1)
+        if len(query)>1:
+            return plot_function(query[1])
     elif message.startswith("!help"):
         commands = {
             'corona': '!corona <location> for latest coronavirus report for specified location.',
