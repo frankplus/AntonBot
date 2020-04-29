@@ -196,4 +196,4 @@ def wolfram_req(query):
 def plot_function(query):
     q = {'q': query}
     q = urllib.parse.urlencode(q)
-    return f'https://plasm.acqua.team/?q={q}'
+    return f'https://plasm.acqua.team/?{q}'
