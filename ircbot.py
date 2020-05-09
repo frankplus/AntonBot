@@ -35,7 +35,7 @@ def on_private_message(conn, sender, message):
 rss_thread = Timeloop()
 rss = Miniflux()
 
-@rss_thread.job(interval=timedelta(seconds=60))
+@rss_thread.job(interval=timedelta(seconds=300))
 def send_rss_updates():
     global rss
     response = rss.get_new_entries()

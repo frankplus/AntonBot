@@ -111,8 +111,6 @@ def get_youtube_videoinfo(item):
 def get_youtube_description(query):
     parsed_url = urlparse(query)
     url_queries = parse_qs(parsed_url.query)
-    parsed_url = parsed_url._replace(netloc='invidio.us') # replace youtube into invidio.us
-    invidio_url = parsed_url.geturl()
 
     if "v" in url_queries:
         video_id = url_queries["v"][0]
@@ -123,7 +121,7 @@ def get_youtube_description(query):
         items = data["items"]
         if len(items) > 0:
             info = get_youtube_videoinfo(items[0])
-            return "\x0303[youtube]\x03 {} {}".format(invidio_url, info)
+            return "\x0303[youtube]\x03 {}".format(info)
     
 
 def search_youtube_video(query, music=False):
