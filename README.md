@@ -35,7 +35,8 @@ If you just want to test the bot run `python3 test.py`
 `!tex <query>` to compile latex into unicode.\
 `!music <query>` to search for music video on youtube.\
 `!game [easy/medium/hard] [id_category]` to start game.\
-`!wolfram <query>` to calculate or ask wolfram any question.
+`!wolfram <query>` to calculate or ask wolfram any question.\
+`!plot <query>` to plot any mathematical function.
 
 ## Other features
 - Cleverbot

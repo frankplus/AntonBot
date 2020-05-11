@@ -80,7 +80,9 @@ def elaborate_query(sender, message):
             'tex': '!tex <query> to compile latex into unicode.',
             'music': '!music <query> to search for music video on youtube.',
             'game': game.get_help(),
-            'wolfram': '!wolfram <query> to calculate or ask any question.'
+            'wolfram': '!wolfram <query> to calculate or ask any question.',
+            'plot': '!plot <query> to plot any mathematical function.',
+            'die': '!die to kill the bot.'
         }
         query = message.split(" ", 1)
         if len(query)>1:
