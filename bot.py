@@ -89,6 +89,8 @@ def elaborate_query(sender, message):
             return "COMMANDS: {} \nSee !help <command> for details".format(" ".join(commands.keys()))
     elif message.lower() in ["hi", "hello", "yo", "hey"]:
         return random.choice(greetings).format(sender)
+    elif message == "!die" :
+        exit()
     else:
         found_urls = re.findall(r'(https?://[^\s]+)', message)
         for url in found_urls:
