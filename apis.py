@@ -143,6 +143,21 @@ def search_youtube_video(query, music=False):
 
     return "I haven't found anything"
 
+def search_image(query):
+    q = {'num': 1, 'searchType':'image', 'q': query, 'key': YOUTUBE_KEY, 'cx': SEARCH_ENGINE}
+    url = "https://www.googleapis.com/customsearch/v1?"+urlencode(q)
+    data = json_request(url)
+    if not data:
+        return None
+    items = data["items"]
+    if len(items) > 0:
+        item = items[0]
+        url = item['link']
+        title = item['title']
+        return f'\x0303[image]\x03 {title} → {url}'
+
+    return "I haven't found anything"
+
 def url_meta(url):
     resp = http_request(url)
     if not resp:

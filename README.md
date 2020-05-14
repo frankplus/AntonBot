@@ -31,6 +31,7 @@ If you just want to test the bot run `python3 test.py`
 `!news <query>` for latest news related to specified query. \
 `!weather <location>` for weather report at specified location. \
 `!youtube <query>` to search for youtube video.\
+`!image <query>` to search for an image.\
 `!latex <query>` to compile latex into png.\
 `!tex <query>` to compile latex into unicode.\
 `!music <query>` to search for music video on youtube.\

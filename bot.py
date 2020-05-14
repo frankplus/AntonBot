@@ -43,6 +43,10 @@ def elaborate_query(sender, message):
         query = message.split(" ", 1)
         if len(query)>1:
             return search_youtube_video(query[1])
+    elif message.startswith("!image"):
+        query = message.split(" ", 1)
+        if len(query)>1:
+            return search_image(query[1])
     elif message.startswith("!music"):
         query = message.split(" ", 1)
         if len(query)>1:
@@ -76,6 +80,7 @@ def elaborate_query(sender, message):
             'news': '!news <query> for latest news related to specified query.',
             'weather': '!weather <location> for weather report at specified location.',
             'youtube': '!youtube <query> to search for youtube video.',
+            'image': '!image <query> to search for an image.',
             'latex': '!latex <query> to compile latex into png.',
             'tex': '!tex <query> to compile latex into unicode.',
             'music': '!music <query> to search for music video on youtube.',
@@ -92,7 +97,7 @@ def elaborate_query(sender, message):
     elif message.lower() in ["hi", "hello", "yo", "hey"]:
         return random.choice(greetings).format(sender)
     elif message == "!die" :
-        exit()
+        exit(1)
     else:
         found_urls = re.findall(r'(https?://[^\s]+)', message)
         for url in found_urls:
