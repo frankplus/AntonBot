@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import traceback
 import miniflux
 import urllib
+import emoji
 
 class Cleverbot:
     def __init__(self):
@@ -210,3 +211,6 @@ def plot_function(query):
     q = {'q': query}
     q = urllib.parse.urlencode(q)
     return f'https://plasm.acqua.team/?{q}'
+
+def emojize(query):
+    return emoji.emojize(query, use_aliases=True)
