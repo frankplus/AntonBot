@@ -4,6 +4,7 @@ import random
 import corona
 import game
 from config import BOTNAME
+import game_akinator
 
 greetings = [
     "Hello {}!",
@@ -74,6 +75,10 @@ def elaborate_query(sender, message):
         query = message.split(" ", 1)
         if len(query)>1:
             return plot_function(query[1])
+    elif message.startswith("!akinator"):
+        query = message.split(" ", 1)
+        if len(query)>1:
+            return game_akinator.elaborate_query(query[1])
     elif message[0] == ':' and message[-1] == ':' and len(message) >= 3:
         return emojize(message)
     elif message.startswith("!help"):
