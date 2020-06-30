@@ -12,27 +12,16 @@ def format(number, sign = False):
         return str(number)
 
 def get_country_status(query):
-    data = json_request('https://coronavirus-tracker-api.herokuapp.com/v2/locations')
+    data = json_request('https://api.covid19api.com/summary')
     if not data:
         return None
 
-    for location in data["locations"]:
-        if (location["country"].lower() == query and location["province"] == "") or location["province"].lower() == query:
-            id = location["id"]
-            confirmed = format(location["latest"]["confirmed"])
-            deaths = format(location["latest"]["deaths"])
-
-            data = json_request('https://coronavirus-tracker-api.herokuapp.com/v2/locations/' + str(id))
-            if not data:
-                return None
-
-            #confirmed
-            timeline = data["location"]["timelines"]["confirmed"]["timeline"]
-            new_cases = format(timeline.popitem()[1] - timeline.popitem()[1], sign = True)
-
-            #deaths
-            timeline = data["location"]["timelines"]["deaths"]["timeline"]
-            new_deaths = format(timeline.popitem()[1] - timeline.popitem()[1], sign = True)
+    for country in data["Countries"]:
+        if country["Country"].lower() == query or country["Slug"] == query or country["CountryCode"].lower() == query:
+            confirmed = format(country["TotalConfirmed"])
+            new_cases = format(country["NewConfirmed"], sign=True)
+            deaths = format(country["TotalDeaths"])
+            new_deaths = format(country["NewDeaths"], sign=True)
 
             info = 'Total Cases: {} ({}) - Total Deaths: {} ({})'.format(confirmed, new_cases, deaths, new_deaths)
             return info
@@ -92,14 +81,16 @@ def get_italy_province(query):
 
 
 def get_global_status():
-    data = json_request('https://coronavirus-tracker-api.herokuapp.com/v2/latest')
+    data = json_request('https://api.covid19api.com/summary')
     if not data:
         return None
 
-    confirmed = format(data["latest"]["confirmed"])
-    deaths = format(data["latest"]["deaths"])
+    confirmed = format(data["Global"]["TotalConfirmed"])
+    deaths = format(data["Global"]["TotalDeaths"])
+    new_cases = format(data["Global"]["NewConfirmed"], sign=True)
+    new_deaths = format(data["Global"]["NewDeaths"], sign=True)
 
-    info = 'Total Cases: {} - Total Deaths: {}'.format(confirmed, deaths)
+    info = 'Total Cases: {} ({}) - Total Deaths: {} ({})'.format(confirmed, new_cases, deaths, new_deaths)
     return info
 
 def elaborate_query(query):
