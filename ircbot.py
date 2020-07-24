@@ -16,6 +16,7 @@ def on_connect(conn):
 
 def on_welcome(conn):
     conn.join_channel(CHANNEL)
+    conn.join_channel("#bugbyte-game")
 
 def on_message(conn, channel, sender, message):
     response = bot.elaborate_query(sender, message)
