@@ -11,7 +11,9 @@ greetings = [
     "Hello there {}!",
     "Hi there {}!",
     "Hey {}!",
-    "sup?"
+    "sup?",
+    "we",
+    "Che si dice {}?"
 ]
 
 game_instance = game.Game()
@@ -96,7 +98,7 @@ def elaborate_query(sender, message):
             return commands.get(query[1], "Invalid command")
         else:
             return "COMMANDS: {} \nSee !help <command> for details".format(" ".join(commands.keys()))
-    elif message.lower() in ["hi", "hello", "yo", "hey"]:
+    elif message.lower() in ["hi", "hello", "yo", "hey", "we"]:
         return random.choice(greetings).format(sender)
     elif message == "!die" :
         exit(1)
@@ -127,6 +129,6 @@ def on_join(sender):
         return "MrFrank sito inseminio?"
 
     if sender.lower() == "crybot":
-        return "Salve, Dr. crybot "
+        return "Salve, Dr. crybot. Congratulazioni per la tua laurea!"
 
     return random.choice(greetings).format(sender)
