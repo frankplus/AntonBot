@@ -117,3 +117,16 @@ def elaborate_query(sender, message):
         else:
             message = message.replace(BOTNAME, ' ')
         return cleverbot.elaborate_query(message)
+
+
+def on_join(sender):
+    if sender == BOTNAME:
+        return None
+
+    if sender == "MrFrank":
+        return "MrFrank sito inseminio?"
+
+    if sender.lower() == "crybot":
+        return "Salve, Dr. crybot "
+
+    return random.choice(greetings).format(sender)

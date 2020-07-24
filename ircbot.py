@@ -31,6 +31,11 @@ def on_private_message(conn, sender, message):
         for line in lines:
             conn.send_message(sender, line)
 
+def on_join(conn, channel, sender):
+    response = bot.on_join(sender)
+    if response:
+        conn.send_message(channel, response)
+
 # rss feed
 rss_thread = Timeloop()
 rss = Miniflux()
@@ -49,6 +54,7 @@ conn.on_connect.append(on_connect)
 conn.on_welcome.append(on_welcome)
 conn.on_public_message.append(on_message)
 conn.on_private_message.append(on_private_message)
+conn.on_join.append(on_join)
 
 conn.connect(IRC_SERVER_ADDRESS)
 
