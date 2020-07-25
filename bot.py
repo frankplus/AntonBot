@@ -11,9 +11,9 @@ greetings = [
     "Hello there {}!",
     "Hi there {}!",
     "Hey {}!",
-    "sup?",
-    "we",
-    "Che si dice {}?"
+    "sup {}?",
+    "yo {}!",
+    "we {}!"
 ]
 
 game_instance = game.Game()
@@ -129,6 +129,6 @@ def on_join(sender):
         return "MrFrank sito inseminio?"
 
     if sender.lower() == "crybot":
-        return "Salve, Dr. crybot. Congratulazioni per la tua laurea!"
+        return "Salve, Dr. crybot!"
 
     return random.choice(greetings).format(sender)
