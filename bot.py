@@ -123,12 +123,7 @@ def elaborate_query(sender, message):
 
 def on_join(sender):
     if sender == BOTNAME:
-        return None
+        return "Hey y'all. Mr Bot is here!"
 
     if sender == "MrFrank":
         return "MrFrank sito inseminio?"
-
-    if sender.lower() == "crybot":
-        return "Salve, Dr. crybot!"
-
-    return random.choice(greetings).format(sender)

@@ -134,10 +134,9 @@ class Game:
         try:
             f = open("leaderboard.txt", "r")
             leaderboard = json.load(f)
+            f.close()
         except FileNotFoundError:
             leaderboard = dict()
-        finally:
-            f.close()
         
         for player,points in self.players_points.items():
             if player not in leaderboard:
