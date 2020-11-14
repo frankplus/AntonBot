@@ -9,7 +9,11 @@ def format(number, sign = False):
         else:
             return '\x02\x0304{}\x03\x02'.format(number)
     else:
-        return str(number)
+        if sign:
+            return '{:+}'.format(number)
+        else:
+            return str(number)
+
 
 def get_country_status(query):
     data = json_request('https://api.covid19api.com/summary')
