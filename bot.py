@@ -5,6 +5,8 @@ import corona
 import game
 from config import BOTNAME
 
+enableUrlInfo = True
+
 greetings = [
     "Hello {}!",
     "Hi {}!",
@@ -102,7 +104,7 @@ def elaborate_query(sender, message):
         return random.choice(greetings).format(sender)
     elif message == "!die" :
         exit(1)
-    else:
+    elif enableUrlInfo:
         found_urls = re.findall(r'(https?://[^\s]+)', message)
         for url in found_urls:
             info = get_url_info(url)

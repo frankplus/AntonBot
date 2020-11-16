@@ -24,6 +24,7 @@ import corona
 import config
 
 corona.irc_formatting = False
+bot.enableUrlInfo = False
 
 # Enable logging
 logging.basicConfig(
