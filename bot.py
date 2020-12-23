@@ -3,6 +3,7 @@ import re
 import random
 import corona
 import game
+import chessbot
 from config import BOTNAME
 
 enableUrlInfo = True
@@ -70,6 +71,10 @@ def elaborate_query(sender, message):
             return game_instance.elaborate_query(sender, query[1])
         else:
             return game_instance.elaborate_query(sender, "")
+    elif message.startswith("!chess"):
+        query = message.split(" ", 1)
+        if len(query)>1:
+            return chessbot.elaborate_query(sender, query[1])
     elif message.startswith("!wolfram"):
         query = message.split(" ", 1)
         if len(query)>1:
@@ -93,6 +98,7 @@ def elaborate_query(sender, message):
             'game': game.get_help(),
             'wolfram': '!wolfram <query> to calculate or ask any question.',
             'plot': '!plot <query> to plot any mathematical function.',
+            'chess': chessbot.get_help(),
             'die': '!die to kill the bot.'
         }
         query = message.split(" ", 1)
