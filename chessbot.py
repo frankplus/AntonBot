@@ -1,6 +1,27 @@
 import chess
 
-board = chess.Board()
+def load_saved_board():
+    try:
+        f = open("chessboardsave.txt", "r")
+        saved_chessboard = f.read()
+    except FileNotFoundError:
+        return None
+    
+    f.close()
+    return saved_chessboard
+
+
+saved_board = load_saved_board()
+if saved_board:
+    board = chess.Board(saved_board)
+else:
+    board = chess.Board()
+
+def save_board(board):
+    file = open('chessboardsave.txt', 'w')
+    file.write(board.fen())
+    file.close()
+
 
 def show_board():
     fen = board.fen().split()[0]
@@ -31,6 +52,7 @@ def elaborate_query(sender, query):
     else:
         try:
             move = board.push_san(query)
+            save_board(board)
         except:
             response = "Illegal move\n"
 
