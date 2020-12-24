@@ -24,8 +24,10 @@ def save_board(board):
 
 
 def show_board():
+    global board
     fen = board.fen().split()[0]
-    url = "http://www.fen-to-image.com/image/36/double/coords/{}".format(fen)
+    turn = "White" if board.turn == chess.WHITE else "Black"
+    url = "{} to move http://www.fen-to-image.com/image/36/double/coords/{}".format(turn, fen)
     return url
 
 def get_help():
