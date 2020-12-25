@@ -57,12 +57,14 @@ def elaborate_query(sender, query):
     elif query == "takeback":
         board.pop()
         response = show_board()
+        save_board(board)
     elif query == "help":
         response = get_help()
     else:
         try:
             move = board.push_san(query)
             save_board(board)
+            response += show_board()
         except:
             response = "Illegal move\n"
 
@@ -75,9 +77,6 @@ def elaborate_query(sender, query):
                 response += "Draw by insufficient material\n"
 
             response += "Game result: {}\n".format(board.result())
-        
-        response += show_board()
-
         
 
     return response
