@@ -25,10 +25,18 @@ def save_board(board):
 
 def show_board():
     global board
+    try:
+        last_move = board.peek().uci()
+    except:
+        last_move = None
+
     fen = board.fen().split()[0]
     turn = "White" if board.turn == chess.WHITE else "Black"
-    url = "{} to move https://chessboardimage.com/{}.png".format(turn, fen)
-    return url
+    flip = "-flip" if board.turn == chess.BLACK else ""
+    response = "{} to move".format(turn)
+    if last_move: response += ", last move was {}".format(last_move)
+    response += ": https://chessboardimage.com/{}{}.png".format(fen, flip)
+    return response
 
 def get_help():
     return '"!chess start" to start a new game.\n'\
