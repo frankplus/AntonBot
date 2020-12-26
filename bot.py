@@ -21,6 +21,7 @@ greetings = [
 
 game_instance = game.Game()
 cleverbot = Cleverbot()
+chess_instance = chessbot.Game()
 
 def elaborate_query(sender, message):
     message = message.strip()
@@ -74,7 +75,9 @@ def elaborate_query(sender, message):
     elif message.startswith("!chess"):
         query = message.split(" ", 1)
         if len(query)>1:
-            return chessbot.elaborate_query(sender, query[1])
+            return chess_instance.elaborate_query(sender, query[1])
+        else:
+            return chess_instance.elaborate_query(sender, "")
     elif message.startswith("!wolfram"):
         query = message.split(" ", 1)
         if len(query)>1:
