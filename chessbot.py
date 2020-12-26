@@ -116,7 +116,6 @@ class Game:
             elif sender == self.get_current_player():
                 try:
                     move = self.board.push_san(command)
-                    self.save_state()
                     response = self.show_board()
                 except ValueError:
                     response = "Illegal move\n"
@@ -125,6 +124,8 @@ class Game:
                     response += "\n"
                     response += self.finish_game()
                     self.gamestate = GameState.stop
+
+                self.save_state()
             else:
                 response = "{}, it's not your turn!!".format(sender)
                 

@@ -37,7 +37,8 @@ If you just want to test the bot run `python3 test.py`
 `!music <query>` to search for music video on youtube.\
 `!game [easy/medium/hard] [id_category]` to start game.\
 `!wolfram <query>` to calculate or ask wolfram any question.\
-`!plot <query>` to plot any mathematical function.
+`!plot <query>` to plot any mathematical function.\
+`!chess <query>` to play a chess game..
 
 ## Other features
 - Cleverbot
