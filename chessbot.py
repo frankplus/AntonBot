@@ -1,42 +1,6 @@
 import chess
-
-def load_saved_board():
-    try:
-        f = open("chessboardsave.txt", "r")
-        saved_chessboard = f.read()
-    except FileNotFoundError:
-        return None
-    
-    f.close()
-    return saved_chessboard
-
-
-saved_board = load_saved_board()
-if saved_board:
-    board = chess.Board(saved_board)
-else:
-    board = chess.Board()
-
-def save_board(board):
-    file = open('chessboardsave.txt', 'w')
-    file.write(board.fen())
-    file.close()
-
-
-def show_board():
-    global board
-    try:
-        last_move = board.peek().uci()
-    except:
-        last_move = None
-
-    fen = board.fen().split()[0]
-    turn = "White" if board.turn == chess.WHITE else "Black"
-    flip = "-flip" if board.turn == chess.BLACK else ""
-    response = "{} to move".format(turn)
-    if last_move: response += ", last move was {}".format(last_move)
-    response += ": https://chessboardimage.com/{}{}.png".format(fen, flip)
-    return response
+import json
+from enum import Enum
 
 def get_help():
     return '"!chess start" to start a new game.\n'\
@@ -45,38 +9,122 @@ def get_help():
             '"!chess <move>" to make a move specified in standard algebraic notation. \n'\
             '"!chess help" to show this help information'
 
-def elaborate_query(sender, query):
-    global board
-    response = ""
 
-    if query == "board":
-        response = show_board()
-    elif query == "start":
-        board.reset()
-        response = "Chess game started, GLHF! {}".format(show_board())
-    elif query == "takeback":
-        board.pop()
-        response = show_board()
-        save_board(board)
-    elif query == "help":
-        response = get_help()
-    else:
+class GameState(Enum):
+    stop = 0
+    started = 1
+
+class Game:
+    def __init__(self):
+        json_savestate = self.load_saved_state()
+        if json_savestate:
+            self.board = chess.Board(json_savestate["fen"])
+            self.players = json_savestate["players"]
+            self.gamestate = GameState(json_savestate["gamestate"])
+        else:
+            self.board = chess.Board()
+            self.gamestate = GameState.stop
+
+    def load_saved_state(self):
         try:
-            move = board.push_san(query)
-            save_board(board)
-            response += show_board()
+            f = open("chessboardsave.txt", "r")
+            json_savestate = json.load(f)
+        except FileNotFoundError:
+            return None
+            
+        f.close()
+        return json_savestate
+
+    def save_state(self):
+        json_savestate = dict()
+        json_savestate["players"] = self.players
+        json_savestate["fen"] = self.board.fen()
+        json_savestate["gamestate"] = self.gamestate.value
+        with open("chessboardsave.txt", "w") as f:
+            f.write(json.dumps(json_savestate))
+
+    def set_participants(self, players):
+        self.players = players
+
+    def start_game(self):
+        self.board.reset()
+
+    def get_current_player(self):
+        return self.players[0] if self.board.turn == chess.WHITE else self.players[1]
+
+    def show_board(self):
+        try:
+            last_move = self.board.peek().uci()
         except:
-            response = "Illegal move\n"
+            last_move = None
 
-        if board.is_game_over():
-            if board.is_checkmate():
-                response += "Checkmate!\n"
-            if board.is_stalemate():
-                response += "Stalemate!\n"
-            if board.is_insufficient_material():
-                response += "Draw by insufficient material\n"
+        fen = self.board.fen().split()[0]
+        turn = "White" if self.board.turn == chess.WHITE else "Black"
+        flip = "-flip" if self.board.turn == chess.BLACK else ""
+        response = "{} ({}) to move".format(self.get_current_player(), turn)
+        if last_move: response += ", last move was {}".format(last_move)
+        response += ": https://chessboardimage.com/{}{}.png".format(fen, flip)
+        return response
 
-            response += "Game result: {}\n".format(board.result())
-        
+    def finish_game(self):
+        response = ""
+        if self.board.is_checkmate():
+            response += "Checkmate!\n"
+        if self.board.is_stalemate():
+            response += "Stalemate!\n"
+        if self.board.is_insufficient_material():
+            response += "Draw by insufficient material\n"
 
-    return response
+        winner = self.players[0] if self.board.result() == "1-0" else None
+        winner = self.players[1] if self.board.result() == "0-1" else None
+        response += "Game result: {}\n".format(self.board.result())
+        if winner: 
+            response += "The winner is {}!".format(winner)
+        return response
+
+    def elaborate_query(self, sender, query):
+
+        query = query.split()
+        command = query[0] if len(query) > 0 else ""
+        params = query[1:]
+
+        if command == "stop":
+            self.gamestate = GameState.stop
+            response = "Game stopped"
+        elif command == "help":
+            response = get_help()
+        elif self.gamestate == GameState.stop:
+            if len(query) >= 2:
+                self.set_participants(query)
+                self.start_game()
+                response = "Chess game started, GLHF! {}".format(self.show_board())
+                self.gamestate = GameState.started
+            else:
+                response = "Type the names of the two participants separated by space (!chess <names...>): "
+        elif self.gamestate == GameState.started:
+            if command == "board":
+                response = self.show_board()
+            elif command == "takeback":
+                number_takebacks = 1
+                if len(params)>0:
+                    number_takebacks = int(params[0])
+                for _ in range(number_takebacks):
+                    self.board.pop()
+                response = self.show_board()
+                self.save_state()
+            elif sender == self.get_current_player():
+                try:
+                    move = self.board.push_san(command)
+                    self.save_state()
+                    response = self.show_board()
+                except ValueError:
+                    response = "Illegal move\n"
+
+                if self.board.is_game_over():
+                    response += "\n"
+                    response += self.finish_game()
+                    self.gamestate = GameState.stop
+            else:
+                response = "{}, it's not your turn!!".format(sender)
+                
+        return response
