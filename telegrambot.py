@@ -1,22 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# pylint: disable=W0613, C0116
-# type: ignore[union-attr]
-# This program is dedicated to the public domain under the CC0 license.
-
-"""
-Simple Bot to reply to Telegram messages.
-First, a few handler functions are defined. Then, those functions are passed to
-the Dispatcher and registered at their respective places.
-Then, the bot is started and runs until we press Ctrl-C on the command line.
-Usage:
-Basic Echobot example, repeats messages.
-Press Ctrl-C on the command line or send a signal to the process to stop the
-bot.
-"""
 
 import logging
-
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import bot
@@ -66,12 +50,22 @@ def main():
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
 
-    # on different commands - answer in Telegram
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", help_command))
+    for command, handler in bot.handlers.items():
+        def make_handler(handler):
+            def telegram_handler(update: Update, context: CallbackContext):
+                from_user = update.message.from_user.first_name
+                message = update.message.text
+                splitted = message.split(" ", 1)
+                command = splitted[0]
+                args = splitted[1] if len(splitted)>1 else ""
+                response = handler(from_user, args)
+                update.message.reply_text(response)
+            return telegram_handler
+
+        dispatcher.add_handler(CommandHandler(command, make_handler(handler)))
 
     # on noncommand i.e message 
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, on_message))
+    #dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, on_message))
 
     # Start the Bot
     updater.start_polling()

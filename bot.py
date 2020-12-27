@@ -67,9 +67,9 @@ def elaborate_query(sender, message):
     if message.startswith("!"):
         splitted = message[1:].split(" ", 1)
         command = splitted[0]
-        param = splitted[1] if len(splitted)>1 else ""
+        args = splitted[1] if len(splitted)>1 else ""
         if command in handlers:
-            return handlers[command](sender, param)
+            return handlers[command](sender, args)
 
     elif message[0] == ':' and message[-1] == ':' and len(message) >= 3:
         return emojize(message)
