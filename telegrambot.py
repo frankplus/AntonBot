@@ -2,7 +2,7 @@
 
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, PrefixHandler, Filters, CallbackContext
 import bot
 import corona
 import config
@@ -16,18 +16,6 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-
-
-# Define a few command handlers. These usually take the two arguments update and
-# context. Error handlers also receive the raised TelegramError object in error.
-def start(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
-
-
-def help_command(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
 
 
 def on_message(update: Update, context: CallbackContext) -> None:
@@ -54,15 +42,12 @@ def main():
         def make_handler(handler):
             def telegram_handler(update: Update, context: CallbackContext):
                 from_user = update.message.from_user.first_name
-                message = update.message.text
-                splitted = message.split(" ", 1)
-                command = splitted[0]
-                args = splitted[1] if len(splitted)>1 else ""
-                response = handler(from_user, args)
+                arg = " ".join(context.args)
+                response = handler(from_user, arg)
                 update.message.reply_text(response)
             return telegram_handler
 
-        dispatcher.add_handler(CommandHandler(command, make_handler(handler)))
+        dispatcher.add_handler(PrefixHandler(['!', '#', '/'], command, make_handler(handler)))
 
     # on noncommand i.e message 
     #dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, on_message))
