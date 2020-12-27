@@ -1,15 +1,18 @@
 import chess
+import chess.engine
 import json
 from enum import Enum
+import config
 
 def get_help():
-    return '"!chess <names...>" to start a new game with the specified participants.\n'\
+    return '"!chess play" to play with the AI. \n'\
+            '"!chess <names...>" to start a new game with the specified participants.\n'\
             '"!chess board" to show the current board. \n'\
             '"!chess takeback" to undo the last move. \n'\
             '"!chess takeback <number>" to undo the last N moves. \n'\
             '"!chess <move>" to make a move specified in standard algebraic notation. \n'\
             '"!chess help" to show this help information. \n'\
-            '"!game stop" to stop game.'
+            '"!chess stop" to stop game.'
 
 
 class GameState(Enum):
@@ -18,14 +21,18 @@ class GameState(Enum):
 
 class Game:
     def __init__(self):
+        self.engine = chess.engine.SimpleEngine.popen_uci(config.CHESSENGINE_DIR)
         json_savestate = self.load_saved_state()
         if json_savestate:
             self.board = chess.Board(json_savestate["fen"])
             self.players = json_savestate["players"]
             self.gamestate = GameState(json_savestate["gamestate"])
+            self.against_engine = json_savestate["against_engine"]
         else:
             self.board = chess.Board()
             self.gamestate = GameState.stop
+            self.against_engine = False
+            self.players = []
 
     def load_saved_state(self):
         try:
@@ -42,6 +49,7 @@ class Game:
         json_savestate["players"] = self.players
         json_savestate["fen"] = self.board.fen()
         json_savestate["gamestate"] = self.gamestate.value
+        json_savestate["against_engine"] = self.against_engine
         with open("chessboardsave.txt", "w") as f:
             f.write(json.dumps(json_savestate))
 
@@ -86,19 +94,29 @@ class Game:
 
     def elaborate_query(self, sender, query):
 
-        query = query.split()
+        query = query.split(" ", 1)
         command = query[0] if len(query) > 0 else ""
-        params = query[1:]
+        params = query[1] if len(query) > 1 else None
 
         if command == "stop":
             self.gamestate = GameState.stop
             response = "Game stopped"
         elif command == "help":
             response = get_help()
+        elif command == "play":
+            self.set_participants(["You", "AI"])
+            self.start_game()
+            self.against_engine = True
+            response = "Game against AI started, GLHF! {}".format(self.show_board())
+            self.gamestate = GameState.started
+        elif command == "load":
+            self.board = chess.Board(params)
+            response = "Loaded board position"
         elif self.gamestate == GameState.stop:
             if len(query) >= 2:
                 self.set_participants(query)
                 self.start_game()
+                self.against_engine = False
                 response = "Chess game started, GLHF! {}".format(self.show_board())
                 self.gamestate = GameState.started
             else:
@@ -107,12 +125,30 @@ class Game:
             if command == "board":
                 response = self.show_board()
             elif command == "takeback":
-                number_takebacks = 1
-                if len(params)>0:
-                    number_takebacks = int(params[0])
-                for _ in range(number_takebacks):
-                    self.board.pop()
-                response = self.show_board()
+                try:
+                    number_takebacks = 1
+                    if params:
+                        number_takebacks = int(params)
+                    for _ in range(number_takebacks):
+                        self.board.pop()
+                    response = self.show_board()
+                    self.save_state()
+                except:
+                    response = "Could not takeback"
+            elif self.against_engine:
+                try:
+                    move = self.board.push_san(command)
+                    result = self.engine.play(self.board, chess.engine.Limit(time=1.0))
+                    self.board.push(result.move)
+                    response = self.show_board()
+                except ValueError:
+                    response = "Illegal move\n"
+
+                if self.board.is_game_over():
+                    response += "\n"
+                    response += self.finish_game()
+                    self.gamestate = GameState.stop
+
                 self.save_state()
             elif sender == self.get_current_player():
                 try:
