@@ -6,6 +6,7 @@ def get_help():
     return '"!chess <names...>" to start a new game with the specified participants.\n'\
             '"!chess board" to show the current board. \n'\
             '"!chess takeback" to undo the last move. \n'\
+            '"!chess takeback <number>" to undo the last N moves. \n'\
             '"!chess <move>" to make a move specified in standard algebraic notation. \n'\
             '"!chess help" to show this help information. \n'\
             '"!game stop" to stop game.'

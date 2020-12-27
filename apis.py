@@ -210,7 +210,7 @@ def wolfram_req(query):
 def plot_function(query):
     q = {'q': query}
     q = urllib.parse.urlencode(q)
-    return f'https://plasm.acqua.team/?{q}'
+    return f'https://frankplus.github.io/plasm?{q}'
 
 def emojize(query):
     return emoji.emojize(query, use_aliases=True)
