@@ -7,12 +7,12 @@ import config
 def get_help():
     return '"!chess play" to play with the AI. \n'\
             '"!chess <names...>" to start a new game with the specified participants.\n'\
+            '"!chess <move>" to make a move specified in standard algebraic notation. \n'\
             '"!chess board" to show the current board. \n'\
             '"!chess takeback" to undo the last move. \n'\
             '"!chess takeback <number>" to undo the last N moves. \n'\
-            '"!chess <move>" to make a move specified in standard algebraic notation. \n'\
-            '"!chess help" to show this help information. \n'\
-            '"!chess stop" to stop game.'
+            '"!chess load <FEN>" to load a board position. \n'\
+            '"!chess stop" to stop the game.'
 
 
 class GameState(Enum):
@@ -97,6 +97,7 @@ class Game:
         query = query.split(" ", 1)
         command = query[0] if len(query) > 0 else ""
         params = query[1] if len(query) > 1 else None
+        response = ""
 
         if command == "stop":
             self.gamestate = GameState.stop
@@ -110,8 +111,15 @@ class Game:
             response = "Game against AI started, GLHF! {}".format(self.show_board())
             self.gamestate = GameState.started
         elif command == "load":
-            self.board = chess.Board(params)
-            response = "Loaded board position"
+            try:
+                self.board = chess.Board(params)
+            except ValueError:
+                return "Invalid FEN"
+            if self.gamestate == GameState.stop or self.against_engine:
+                self.set_participants(["You", "AI"] if self.board.turn == chess.WHITE else ["AI", "You"])
+                self.against_engine = True
+                self.gamestate = GameState.started
+            response = "Loaded board position. {}".format(self.show_board())
         elif self.gamestate == GameState.stop:
             if len(query) >= 2:
                 self.set_participants(query)
@@ -138,7 +146,7 @@ class Game:
             elif self.against_engine:
                 try:
                     move = self.board.push_san(command)
-                    result = self.engine.play(self.board, chess.engine.Limit(time=1.0))
+                    result = self.engine.play(self.board, chess.engine.Limit(time=0.1))
                     self.board.push(result.move)
                     response = self.show_board()
                 except ValueError:
