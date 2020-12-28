@@ -6,6 +6,18 @@ import config
 
 chess_engine = chess.engine.SimpleEngine.popen_uci(config.CHESSENGINE_PATH)
 
+def engine_play(board):
+    global chess_engine
+    try:
+        result = chess_engine.play(board, chess.engine.Limit(time=0.1))
+    except:
+        # restart chess engine
+        chess_engine.quit()
+        chess_engine = chess.engine.SimpleEngine.popen_uci(config.CHESSENGINE_PATH)
+        result = chess_engine.play(board, chess.engine.Limit(time=0.1))
+    return result.move
+
+
 def get_help():
     return '"!chess play" to play with the AI. \n'\
             '"!chess <names...>" to start a new game with the specified participants.\n'\
@@ -165,8 +177,9 @@ class Game:
                 try:
                     move = self.board.push_san(command)
                     if self.against_engine:
-                        result = self.engine.play(self.board, chess.engine.Limit(time=0.1))
-                        self.board.push(result.move)
+                        move = engine_play(self.board)
+                        if move:
+                            self.board.push(move)
                     response = self.show_board()
                 except ValueError:
                     response = "Illegal move\n"
