@@ -1,5 +1,5 @@
 # coronavirus-irc-bot
-An IRC bot for latest coronavirus reports. 
+An IRC/telegram bot for latest coronavirus reports and more. 
 
 Global and countries data are retrieved from Johns Hopkins CSSE data repository using `ExpDev07/coronavirus-tracker-api` \
 Italian's province and regional data are retrieved from Dipartimento di Protezione Civile `pcm-dpc/COVID-19` repository.
@@ -18,10 +18,15 @@ pip install -r requirements.txt
 See config.py to set irc configurations and api keys.
 
 ### Run
+If you want to run only the IRC bot:
 `python3 ircbot.py`
 
-To run the bot in the background execute this instead:\
-`nohup python3 ./ircbot.py &` 
+If you want to run only the telegram bot:
+`python3 telegrambot.py`
+
+
+If you want to run both the IRC and the telegrambot:
+`python3 run_irc_telegram.py`
 
 ### Test
 If you just want to test the bot run `python3 test.py`

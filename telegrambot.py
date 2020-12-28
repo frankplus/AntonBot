@@ -18,16 +18,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def on_message(update: Update, context: CallbackContext) -> None:
-    """reply the user message."""
-    response = bot.elaborate_query(update.message.from_user.first_name, update.message.text)
-    print(update.message.text)
-    if response:
-        lines = response.split("\n")
-        for line in lines:
-            update.message.reply_text(line)
-
-
 def main(blocking = True):
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -41,16 +31,14 @@ def main(blocking = True):
     for command, handler in bot.handlers.items():
         def make_handler(handler):
             def telegram_handler(update: Update, context: CallbackContext):
+                chat_id = str(update.effective_chat.id)
                 from_user = update.message.from_user.first_name
                 arg = " ".join(context.args)
-                response = handler(from_user, arg)
+                response = handler(chat_id, from_user, arg)
                 update.message.reply_text(response)
             return telegram_handler
 
         dispatcher.add_handler(PrefixHandler(['!', '#', '/'], command, make_handler(handler)))
-
-    # on noncommand i.e message 
-    #dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, on_message))
 
     # Start the Bot
     updater.start_polling()

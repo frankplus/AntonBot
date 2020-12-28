@@ -18,14 +18,14 @@ def on_welcome(conn):
     conn.join_channel("#bugbyte-game")
 
 def on_message(conn, channel, sender, message):
-    response = bot.elaborate_query(sender, message)
+    response = bot.elaborate_query(channel, sender, message)
     if response:
         lines = response.split("\n")
         for line in lines:
             conn.send_message(channel, line)
 
 def on_private_message(conn, sender, message):
-    response = bot.elaborate_query(sender, message)
+    response = bot.elaborate_query(sender, sender, message)
     if response:
         lines = response.split("\n")
         for line in lines:

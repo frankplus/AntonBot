@@ -4,6 +4,8 @@ import json
 from enum import Enum
 import config
 
+chess_engine = chess.engine.SimpleEngine.popen_uci(config.CHESSENGINE_PATH)
+
 def get_help():
     return '"!chess play" to play with the AI. \n'\
             '"!chess <names...>" to start a new game with the specified participants.\n'\
@@ -20,14 +22,18 @@ class GameState(Enum):
     started = 1
 
 class Game:
-    def __init__(self):
-        self.engine = chess.engine.SimpleEngine.popen_uci(config.CHESSENGINE_PATH)
+    def __init__(self, id=0):
+        global chess_engine
+        self.engine = chess_engine
+        self.id = id
+
         json_savestate = self.load_saved_state()
-        if json_savestate:
-            self.board = chess.Board(json_savestate["fen"])
-            self.players = json_savestate["players"]
-            self.gamestate = GameState(json_savestate["gamestate"])
-            self.against_engine = json_savestate["against_engine"]
+        if id in json_savestate:
+            gamestate = json_savestate[id]
+            self.board = chess.Board(gamestate["fen"])
+            self.players = gamestate["players"]
+            self.gamestate = GameState(gamestate["gamestate"])
+            self.against_engine = gamestate["against_engine"]
         else:
             self.board = chess.Board()
             self.gamestate = GameState.stop
@@ -39,17 +45,19 @@ class Game:
             f = open("chessboardsave.txt", "r")
             json_savestate = json.load(f)
         except FileNotFoundError:
-            return None
-            
+            return dict()
         f.close()
         return json_savestate
 
     def save_state(self):
-        json_savestate = dict()
-        json_savestate["players"] = self.players
-        json_savestate["fen"] = self.board.fen()
-        json_savestate["gamestate"] = self.gamestate.value
-        json_savestate["against_engine"] = self.against_engine
+        gamestate = dict()
+        gamestate["players"] = self.players
+        gamestate["fen"] = self.board.fen()
+        gamestate["gamestate"] = self.gamestate.value
+        gamestate["against_engine"] = self.against_engine
+
+        json_savestate = self.load_saved_state()
+        json_savestate[self.id] = gamestate
         with open("chessboardsave.txt", "w") as f:
             f.write(json.dumps(json_savestate))
 
