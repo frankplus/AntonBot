@@ -71,17 +71,27 @@ class Game:
         return self.players[0] if self.board.turn == chess.WHITE else self.players[1]
 
     def show_board(self):
+
+        response = ""
+
+        if self.board.is_game_over():
+            response += self.finish_game()
+        else:
+            turn = "White" if self.board.turn == chess.WHITE else "Black"
+            response += "{} ({}) to move".format(self.get_current_player(), turn)
+
         try:
             last_move = self.board.peek().uci()
+            response += ", last move was {}".format(last_move)
         except:
-            last_move = None
+            pass
+
+        if self.board.is_check():
+            response += " check!"
 
         fen = self.board.fen().split()[0]
-        turn = "White" if self.board.turn == chess.WHITE else "Black"
         flip = "-flip" if self.board.turn == chess.BLACK else ""
-        response = "{} ({}) to move".format(self.get_current_player(), turn)
-        if last_move: response += ", last move was {}".format(last_move)
-        response += ": https://chessboardimage.com/{}{}.png".format(fen, flip)
+        response += " https://chessboardimage.com/{}{}.png".format(fen, flip)
         return response
 
     def finish_game(self):
@@ -151,31 +161,17 @@ class Game:
                     self.save_state()
                 except:
                     response = "Could not takeback"
-            elif self.against_engine:
+            elif sender == self.get_current_player() or self.against_engine:
                 try:
                     move = self.board.push_san(command)
-                    result = self.engine.play(self.board, chess.engine.Limit(time=0.1))
-                    self.board.push(result.move)
+                    if self.against_engine:
+                        result = self.engine.play(self.board, chess.engine.Limit(time=0.1))
+                        self.board.push(result.move)
                     response = self.show_board()
                 except ValueError:
                     response = "Illegal move\n"
 
                 if self.board.is_game_over():
-                    response += "\n"
-                    response += self.finish_game()
-                    self.gamestate = GameState.stop
-
-                self.save_state()
-            elif sender == self.get_current_player():
-                try:
-                    move = self.board.push_san(command)
-                    response = self.show_board()
-                except ValueError:
-                    response = "Illegal move\n"
-
-                if self.board.is_game_over():
-                    response += "\n"
-                    response += self.finish_game()
                     self.gamestate = GameState.stop
 
                 self.save_state()
