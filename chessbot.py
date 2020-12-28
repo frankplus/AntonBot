@@ -21,7 +21,7 @@ class GameState(Enum):
 
 class Game:
     def __init__(self):
-        self.engine = chess.engine.SimpleEngine.popen_uci(config.CHESSENGINE_DIR)
+        self.engine = chess.engine.SimpleEngine.popen_uci(config.CHESSENGINE_PATH)
         json_savestate = self.load_saved_state()
         if json_savestate:
             self.board = chess.Board(json_savestate["fen"])

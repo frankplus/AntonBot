@@ -28,7 +28,7 @@ def on_message(update: Update, context: CallbackContext) -> None:
             update.message.reply_text(line)
 
 
-def main():
+def main(blocking = True):
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
@@ -58,7 +58,8 @@ def main():
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
-    updater.idle()
+    if blocking:
+        updater.idle()
 
 
 if __name__ == '__main__':

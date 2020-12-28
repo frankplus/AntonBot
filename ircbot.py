@@ -6,9 +6,8 @@ import threading
 from timeloop import Timeloop
 from datetime import timedelta
 from config import CHANNEL, BOTNAME, IRC_SERVER_ADDRESS
+import config
 from apis import Miniflux
-
-conn = JustIRC.IRCConnection()
 
 def on_connect(conn):
     conn.set_nick(BOTNAME)
@@ -37,29 +36,35 @@ def on_join(conn, channel, sender):
     if response:
         conn.send_message(channel, response)
 
-# rss feed
-rss_thread = Timeloop()
-rss = Miniflux()
 
-@rss_thread.job(interval=timedelta(seconds=300))
-def send_rss_updates():
-    global rss
-    response = rss.get_new_entries()
-    if response:
-        lines = response.split("\n")
-        for line in lines:
-            conn.send_message(CHANNEL, line)
+def main():
+    conn = JustIRC.IRCConnection()
 
-# connect
-conn.on_connect.append(on_connect)
-conn.on_welcome.append(on_welcome)
-conn.on_public_message.append(on_message)
-conn.on_private_message.append(on_private_message)
-conn.on_join.append(on_join)
+    # connect
+    conn.on_connect.append(on_connect)
+    conn.on_welcome.append(on_welcome)
+    conn.on_public_message.append(on_message)
+    conn.on_private_message.append(on_private_message)
+    conn.on_join.append(on_join)
 
-conn.connect(IRC_SERVER_ADDRESS)
+    conn.connect(IRC_SERVER_ADDRESS)
 
-# run
-rss_thread.start()
-conn.run_loop()
+    # run
+    if config.ENABLE_MINIFLUX:
+        rss_thread = Timeloop()
+        rss = Miniflux()
 
+        @rss_thread.job(interval=timedelta(seconds=300))
+        def send_rss_updates(rss=rss):
+            response = rss.get_new_entries()
+            if response:
+                lines = response.split("\n")
+                for line in lines:
+                    conn.send_message(CHANNEL, line)
+
+        rss_thread.start()
+
+    conn.run_loop()
+
+if __name__ == '__main__':
+    main()
