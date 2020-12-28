@@ -6,6 +6,11 @@
 
 import ircbot
 import telegrambot
+import threading
 
-telegrambot.main(blocking = False)
-ircbot.main()
+ircbot_thread = threading.Thread(target=ircbot.main, daemon=True)
+ircbot_thread.start()
+
+telegrambot.main()
+
+ircbot_thread.join()
