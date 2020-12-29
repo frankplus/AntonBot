@@ -1,4 +1,5 @@
 beautifulsoup4==4.9.0
+lxml
 certifi==2020.4.5.1
 chardet==3.0.4
 idna==2.9
