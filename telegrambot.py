@@ -31,7 +31,10 @@ def main(blocking = True):
         def make_handler(handler):
             def telegram_handler(update: Update, context: CallbackContext):
                 chat_id = str(update.effective_chat.id)
-                from_user = '@'+update.message.from_user.username
+                if update.message.from_user.username:
+                    from_user = '@'+update.message.from_user.username
+                else:
+                    from_user = update.message.from_user.first_name
                 arg = " ".join(context.args)
                 response = handler(chat_id, from_user, arg)
                 update.message.reply_text(response)
