@@ -102,7 +102,7 @@ def elaborate_query(channel, sender, message):
                 message = split[1]
         else:
             message = message.replace(BOTNAME, ' ')
-        return cleverbot.elaborate_query(message)
+        return get_bot_instance(channel).cleverbot.elaborate_query(message)
 
 
 def on_join(sender):

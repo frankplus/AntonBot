@@ -48,6 +48,7 @@ def main():
     conn.on_join.append(on_join)
 
     conn.connect(IRC_SERVER_ADDRESS)
+    print("IRC bot connected")
 
     # run
     if config.ENABLE_MINIFLUX:
