@@ -150,10 +150,9 @@ class Game:
         try:
             f = open("leaderboard.txt", "r")
             leaderboard = json.load(f)
+            f.close()
         except FileNotFoundError:
             return "Leaderboard is empty"
-        finally:
-            f.close()
         
         response = ""
         for player,points in sorted(leaderboard.items(), key=lambda x: x[1], reverse=True):
@@ -170,6 +169,7 @@ class Game:
         return response
 
     def elaborate_query(self, sender, query):
+        response = ""
         if query == "leaderboard":
             response = self.read_leaderboard()
         elif query == "categories":

@@ -18,6 +18,8 @@ def on_welcome(conn):
     conn.join_channel("#bugbyte-game")
 
 def on_message(conn, channel, sender, message):
+    with open("chatlog.txt", 'a+') as f:
+        f.write(f"{sender}: {message}\n")
     response = bot.elaborate_query(channel, sender, message)
     if response:
         lines = response.split("\n")
