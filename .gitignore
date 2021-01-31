@@ -3,3 +3,5 @@ nohup.out
 config.py
 leaderboard.txt
 env
+chatlog.txt
+chessboardsave.txt
