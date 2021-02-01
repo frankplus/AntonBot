@@ -1,4 +1,3 @@
-from telegram import bot
 from apis import *
 import re
 import random

@@ -9,50 +9,39 @@ from config import CHANNEL, BOTNAME, IRC_SERVER_ADDRESS
 import config
 from apis import Miniflux
 
-def on_connect(conn):
+conn = JustIRC.IRCConnection()
+
+@conn.on("connect")
+def on_connect(e):
     conn.set_nick(BOTNAME)
     conn.send_user_packet(BOTNAME)
 
-def on_welcome(conn):
+@conn.on("welcome")
+def on_welcome(e):
     conn.join_channel(CHANNEL)
-    conn.join_channel("#bugbyte-game")
 
-def on_message(conn, channel, sender, message):
+@conn.on("message")
+def on_message(e):
     with open("chatlog.txt", 'a+') as f:
-        f.write(f"{sender}: {message}\n")
-    response = bot.elaborate_query(channel, sender, message)
+        f.write(f"{e.sender}: {e.message}\n")
+    channel = e.channel if e.channel != BOTNAME else e.sender # check private message
+    response = bot.elaborate_query(channel, e.sender, e.message)
     if response:
         lines = response.split("\n")
         for line in lines:
             conn.send_message(channel, line)
 
-def on_private_message(conn, sender, message):
-    response = bot.elaborate_query(sender, sender, message)
+@conn.on("join")
+def on_join(e):
+    response = bot.on_join(e.nick)
     if response:
-        lines = response.split("\n")
-        for line in lines:
-            conn.send_message(sender, line)
-
-def on_join(conn, channel, sender):
-    response = bot.on_join(sender)
-    if response:
-        conn.send_message(channel, response)
+        conn.send_message(e.channel, response)
 
 
 def main():
-    conn = JustIRC.IRCConnection()
-
-    # connect
-    conn.on_connect.append(on_connect)
-    conn.on_welcome.append(on_welcome)
-    conn.on_public_message.append(on_message)
-    conn.on_private_message.append(on_private_message)
-    conn.on_join.append(on_join)
-
     conn.connect(IRC_SERVER_ADDRESS)
     print("IRC bot connected", flush=True)
 
-    # run
     if config.ENABLE_MINIFLUX:
         rss_thread = Timeloop()
         rss = Miniflux()
