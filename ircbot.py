@@ -26,13 +26,13 @@ class MyBot:
         await self.bot.listen()
 
     @Event.privmsg
-    def on_privmsg(self, sender, channel, message):
+    async def on_privmsg(self, sender, channel, message):
         if channel is None:
             channel = sender
 
         with open("chatlog.txt", 'a+') as f:
             f.write(f"{sender}: {message}\n")
-        response = bot.elaborate_query(channel, sender, message)
+        response = await bot.elaborate_query(channel, sender, message)
         if response:
             lines = response.split("\n")
             for line in lines:

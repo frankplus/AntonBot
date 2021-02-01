@@ -71,7 +71,7 @@ handlers = {
     "help": get_help
 }
 
-def elaborate_query(channel, sender, message):
+async def elaborate_query(channel, sender, message):
     message = message.strip()
 
     if message.startswith("!"):

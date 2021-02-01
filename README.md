@@ -18,15 +18,11 @@ pip install -r requirements.txt
 See config.py to set irc configurations and api keys.
 
 ### Run
-If you want to run only the IRC bot:
+If you want to run the IRC bot:
 `python3 ircbot.py`
 
-If you want to run only the telegram bot:
+If you want to run the telegram bot:
 `python3 telegrambot.py`
-
-
-If you want to run both the IRC and the telegrambot:
-`python3 run_irc_telegram.py`
 
 ### Test
 If you just want to test the bot run `python3 test.py`
