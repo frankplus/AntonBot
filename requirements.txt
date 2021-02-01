@@ -12,3 +12,4 @@ urllib3==1.25.9
 emoji==0.5.4
 chess
 python-telegram-bot
+pyrcb2

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import JustIRC
+from pyrcb2 import IRCBot, Event
 import bot
 import threading
 from timeloop import Timeloop
@@ -8,55 +8,61 @@ from datetime import timedelta
 from config import CHANNEL, BOTNAME, IRC_SERVER_ADDRESS
 import config
 from apis import Miniflux
+import asyncio
 
-conn = JustIRC.IRCConnection()
+class MyBot:
+    def __init__(self):
+        self.bot = IRCBot(log_communication=True)
+        self.bot.load_events(self)
 
-@conn.on("connect")
-def on_connect(e):
-    conn.set_nick(BOTNAME)
-    conn.send_user_packet(BOTNAME)
+    def start(self):
+        self.bot.call_coroutine(self.start_async())
 
-@conn.on("welcome")
-def on_welcome(e):
-    conn.join_channel(CHANNEL)
+    async def start_async(self):
+        await self.bot.connect(IRC_SERVER_ADDRESS, 6667)
+        await self.bot.register(BOTNAME)
+        await self.bot.join(CHANNEL)
+        self.bot.schedule_coroutine(self.rss_reader_loop())
+        await self.bot.listen()
 
-@conn.on("message")
-def on_message(e):
-    with open("chatlog.txt", 'a+') as f:
-        f.write(f"{e.sender}: {e.message}\n")
-    channel = e.channel if e.channel != BOTNAME else e.sender # check private message
-    response = bot.elaborate_query(channel, e.sender, e.message)
-    if response:
-        lines = response.split("\n")
-        for line in lines:
-            conn.send_message(channel, line)
+    @Event.privmsg
+    def on_privmsg(self, sender, channel, message):
+        if channel is None:
+            channel = sender
 
-@conn.on("join")
-def on_join(e):
-    response = bot.on_join(e.nick)
-    if response:
-        conn.send_message(e.channel, response)
+        with open("chatlog.txt", 'a+') as f:
+            f.write(f"{sender}: {message}\n")
+        response = bot.elaborate_query(channel, sender, message)
+        if response:
+            lines = response.split("\n")
+            for line in lines:
+                if line:
+                    self.bot.privmsg(channel, line)
 
+    @Event.join
+    async def on_join(self, sender, channel):
+        response = bot.on_join(sender)
+        if response:
+            self.bot.privmsg(channel, response)
 
-def main():
-    conn.connect(IRC_SERVER_ADDRESS)
-    print("IRC bot connected", flush=True)
-
-    if config.ENABLE_MINIFLUX:
-        rss_thread = Timeloop()
+    async def rss_reader_loop(self):
         rss = Miniflux()
-
-        @rss_thread.job(interval=timedelta(seconds=300))
-        def send_rss_updates(rss=rss):
+        while True:
             response = rss.get_new_entries()
             if response:
                 lines = response.split("\n")
-                for line in lines:
-                    conn.send_message(CHANNEL, line)
+                for channel in self.bot.channels:
+                    for line in lines:
+                        if line: 
+                            self.bot.privmsg(channel, line)
+            await asyncio.sleep(60)
 
-        rss_thread.start()
 
-    conn.run_loop()
+def main():
+    mybot = MyBot()
+    mybot.start()
+    print("IRC bot connected", flush=True)
+
 
 if __name__ == '__main__':
     main()
