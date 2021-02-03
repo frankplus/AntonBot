@@ -2,7 +2,7 @@
 
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, PrefixHandler, Filters, CallbackContext
+from telegram.ext import Updater, PrefixHandler, CallbackContext
 import bot
 import corona
 import config

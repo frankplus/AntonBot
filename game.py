@@ -1,6 +1,4 @@
-import requests
 from enum import Enum
-import operator
 import random
 import html
 from utils import json_request

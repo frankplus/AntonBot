@@ -1,12 +1,10 @@
 import requests
 import datetime
-import re
 from urllib.parse import urlparse, parse_qs, urlencode
 from config import *
 from utils import json_request, http_request
 import pypandoc
 from bs4 import BeautifulSoup
-import traceback
 import miniflux
 import urllib
 import emoji

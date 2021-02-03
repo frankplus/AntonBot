@@ -2,11 +2,7 @@
 
 from pyrcb2 import IRCBot, Event
 import bot
-import threading
-from timeloop import Timeloop
-from datetime import timedelta
 from config import CHANNEL, BOTNAME, IRC_SERVER_ADDRESS
-import config
 from apis import Miniflux
 import asyncio
 
