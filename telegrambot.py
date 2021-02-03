@@ -2,7 +2,7 @@
 
 import logging
 from telegram import Update
-from telegram.ext import Updater, PrefixHandler, CallbackContext
+from telegram.ext import Updater, PrefixHandler, CallbackContext, MessageHandler, Filters
 import bot
 import corona
 import config
@@ -15,6 +15,24 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+def mention_handler(update: Update, context: CallbackContext):
+    text = update.message.text
+    new_text = text
+    mentioned = False
+
+    for entity in update.message.entities:
+        if entity.type == "mention":
+            mention = text[entity.offset : entity.offset+entity.length]
+            user_mentioned = mention[1:]
+            if user_mentioned == context.bot.username:
+                mentioned = True
+            new_text = new_text.replace(mention, "")
+    
+    if mentioned:
+        chat_id = str(update.effective_chat.id)
+        response = bot.get_bot_instance(chat_id).cleverbot.elaborate_query(new_text.strip())
+        update.message.reply_text(response)
 
 
 def main(blocking = True):
@@ -41,6 +59,8 @@ def main(blocking = True):
             return telegram_handler
 
         dispatcher.add_handler(PrefixHandler(['!', '#', '/'], command, make_handler(handler)))
+
+    dispatcher.add_handler(MessageHandler(Filters.entity("mention"), mention_handler))
 
     # Start the Bot
     updater.start_polling()
