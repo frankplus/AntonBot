@@ -31,7 +31,7 @@ def mention_handler(update: Update, context: CallbackContext):
     
     if mentioned:
         chat_id = str(update.effective_chat.id)
-        response = bot.get_bot_instance(chat_id).cleverbot.elaborate_query(new_text.strip())
+        response = bot.get_bot_instance(chat_id).chatbot.elaborate_query(new_text.strip())
         update.message.reply_text(response)
 
 

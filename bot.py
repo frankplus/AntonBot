@@ -43,7 +43,7 @@ class BotInstance:
     def __init__(self, id):
         self.id = id
         self.game_instance = game.Game()
-        self.cleverbot = Cleverbot()
+        self.chatbot = Chatbot()
         self.chess_instance = chessbot.Game(id)
 
 bot_instances = dict()
@@ -92,7 +92,7 @@ async def elaborate_query(channel, sender, message):
             if info:
                 return info
 
-    # cleverbot
+    # chatbot
     pos = message.find(BOTNAME)
     if pos != -1:
         if pos == 0:
@@ -101,7 +101,7 @@ async def elaborate_query(channel, sender, message):
                 message = split[1]
         else:
             message = message.replace(BOTNAME, ' ')
-        return get_bot_instance(channel).cleverbot.elaborate_query(message)
+        return get_bot_instance(channel).chatbot.elaborate_query(message)
 
 
 def on_join(sender):
