@@ -15,15 +15,14 @@ class MyBot:
         self.bot = IRCBot(log_communication=True)
         self.bot.load_events(self)
 
-    def start(self):
-        self.bot.call_coroutine(self.start_async())
-
-    async def start_async(self):
-        await self.bot.connect(IRC_SERVER_ADDRESS, 6667)
-        await self.bot.register(BOTNAME)
-        await self.bot.join(CHANNEL)
-        self.bot.schedule_coroutine(self.rss_reader_loop())
-        await self.bot.listen()
+    async def run(self):
+        async def init():
+            await self.bot.connect(IRC_SERVER_ADDRESS, 6667)
+            await self.bot.register(BOTNAME)
+            await self.bot.join(CHANNEL)
+            print("IRC bot connected", flush=True)
+            await self.rss_reader_loop()
+        await self.bot.run(init())
 
     @Event.privmsg
     async def on_privmsg(self, sender, channel, message):
@@ -58,11 +57,10 @@ class MyBot:
             await asyncio.sleep(60)
 
 
-def main():
+async def main():
     mybot = MyBot()
-    mybot.start()
-    print("IRC bot connected", flush=True)
+    await mybot.run()
 
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
