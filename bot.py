@@ -5,6 +5,8 @@ import corona
 import game
 import chessbot
 from config import BOTNAME
+import iliad
+import config
 
 enableUrlInfo = True
 
@@ -68,6 +70,7 @@ handlers = {
     "chess": lambda channel, sender, query: get_bot_instance(channel).chess_instance.elaborate_query(sender, query),
     "wolfram": lambda channel, sender, query: wolfram_req(query) if query else None,
     "plot": lambda channel, sender, query: plot_function(query) if query else None,
+    "iliad": lambda channel, sender, query: f"Dati rimanenti giornalieri: {iliad.totale_dati_giornalieri(config.iliad_login_info):.2f} GB",
     "help": get_help
 }
 
