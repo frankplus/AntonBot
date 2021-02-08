@@ -1,10 +1,14 @@
 #!/usr/bin/python3
 
-import sys
-import corona 
-import bot
 
-while True:
-    print('Input: ')
-    query = input()
-    print(bot.elaborate_query("channel_test", "MrFrank", query))
+import bot
+import asyncio
+
+async def main():
+    while True:
+        print('Input: ')
+        query = input()
+        response = await bot.elaborate_query("channel_test", "MrFrank", query)
+        print(response)
+
+asyncio.run(main())
