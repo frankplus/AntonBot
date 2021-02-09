@@ -75,23 +75,19 @@ def get_info(user, password):
         return parse_account(html)
 
 def parse_dati_to_gb(dati):
-    if dati == "0b":
-        return 0
 
-    gb_regex = re.compile(r'(\d+,\d+)GB')
-    match = gb_regex.match(dati)
+    regex = re.compile(r'(\d+,?\d+)(GB|mb|MB|KB|b)')
+    match = regex.match(dati)
     if match:
-        return float(match.group(1).replace(',', '.'))
-
-    gb_regex = re.compile(r'(\d+)GB')
-    match = gb_regex.match(dati)
-    if match:
-        return float(match.group(1))
-
-    mb_regex = re.compile(r'(\d+,\d+)mb')
-    match = mb_regex.match(dati)
-    if match:
-        return float(match.group(1).replace(',', '.')) / 1024.0
+        value = float(match.group(1).replace(',', '.'))
+        exp_table = {
+            'GB': 1.0,
+            'mb': 2**10,
+            'MB': 2**10,
+            'KB': 2**20,
+            'b': 2**30,
+        }
+        return value / exp_table.get(match.group(2))
 
 def parse_date(date_str):
     return datetime.datetime.strptime(date_str, '%d/%m/%Y')
@@ -110,11 +106,12 @@ def totale_dati_giornalieri(login_info, print_log=False):
         rimanenti = totale - consumo
         data_rinnovo = parse_date(account["info"]["data_rinnovo"])
         giorni_rimanenti = (data_rinnovo - datetime.datetime.now()).days + 1
-        dati_rimanenti_giornalieri = rimanenti / giorni_rimanenti
+        dati_rimanenti_giornalieri = rimanenti / giorni_rimanenti if giorni_rimanenti > 0 else 0
         totale_dati_giornalieri += dati_rimanenti_giornalieri
 
         if print_log:
             print(account["info"]["numero"])
+            print("dati consumati: " + str(consumo))
             print("rimanenti: " + str(rimanenti))
             print("giorni_rimanenti: " + str(giorni_rimanenti))
             print()
