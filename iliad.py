@@ -105,7 +105,7 @@ def totale_dati_giornalieri(login_info, print_log=False):
         totale = parse_dati_to_gb(account["consumi_italia"]["totale_dati"])
         rimanenti = totale - consumo
         data_rinnovo = parse_date(account["info"]["data_rinnovo"])
-        giorni_rimanenti = (data_rinnovo - datetime.datetime.now()).days + 1
+        giorni_rimanenti = (data_rinnovo - datetime.datetime.now()).total_seconds() / (60*60*24)
         dati_rimanenti_giornalieri = rimanenti / giorni_rimanenti if giorni_rimanenti > 0 else 0
         totale_dati_giornalieri += dati_rimanenti_giornalieri
 
