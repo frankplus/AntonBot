@@ -75,8 +75,7 @@ def get_info(user, password):
         return parse_account(html)
 
 def parse_dati_to_gb(dati):
-
-    regex = re.compile(r'(\d+,?\d+)(GB|mb|MB|KB|b)')
+    regex = re.compile(r'(\d+,?\d*)(GB|mb|MB|KB|b)')
     match = regex.match(dati)
     if match:
         value = float(match.group(1).replace(',', '.'))
