@@ -8,20 +8,19 @@ from bs4 import BeautifulSoup
 import miniflux
 import urllib
 import emoji
-from datetime import datetime
 
 class Chatbot:
     def __init__(self):
         self.context_id = None
-        self.last_request_date = datetime.now()
+        self.last_request_date = datetime.datetime.now()
 
     def elaborate_query(self, query):
 
         # if more than one hour after last request, then new context
-        time_since_last = (datetime.now() - self.last_request_date).total_seconds()
+        time_since_last = (datetime.datetime.now() - self.last_request_date).total_seconds()
         if time_since_last > 3600:
             self.context_id = None
-        self.last_request_date = datetime.now()
+        self.last_request_date = datetime.datetime.now()
 
         if USE_LOCAL_CHATBOT:
             q = {'key': CHATBOT_KEY, 'input': query}
