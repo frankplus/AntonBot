@@ -3,13 +3,13 @@ from requests.exceptions import Timeout
 import traceback
 from config import HTTP_REQUEST_TIMEOUT
 
-def json_request(url):
-    return http_request(url, json=True)
+def json_request(url, timeout=None):
+    return http_request(url, json=True, timeout=timeout)
 
-def http_request(url, json=False, headers=None):
+def http_request(url, json=False, headers=None, timeout=None):
 
     try:
-        r = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT, headers=headers)
+        r = requests.get(url, timeout=timeout if timeout else HTTP_REQUEST_TIMEOUT, headers=headers)
     except Timeout:
         print('The request timed out. url: {}'.format(url))
         return None

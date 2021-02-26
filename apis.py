@@ -20,7 +20,7 @@ class Chatbot:
             if self.context_id:
                 q['context'] = self.context_id
             url = 'http://localhost:2834/getreply?' + urlencode(q)
-            data = json_request(url)
+            data = json_request(url, timeout=60)
             if data:
                 self.context_id = data["context"]
                 return data["output"]
