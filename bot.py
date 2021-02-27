@@ -7,6 +7,7 @@ import chessbot
 from config import BOTNAME
 import iliad
 import config
+import datetime
 
 enableUrlInfo = True
 
@@ -47,6 +48,8 @@ class BotInstance:
         self.game_instance = game.Game()
         self.chatbot = Chatbot()
         self.chess_instance = chessbot.Game(id)
+        self.last_chatbot_auto_speak = datetime.datetime.now()
+        self.last_conversation_lines = list()
 
 bot_instances = dict()
 
@@ -95,7 +98,7 @@ async def elaborate_query(channel, sender, message):
             if info:
                 return info
 
-    # chatbot
+    # chatbot pinged
     pos = message.find(BOTNAME)
     if pos != -1:
         if pos == 0:
@@ -105,6 +108,22 @@ async def elaborate_query(channel, sender, message):
         else:
             message = message.replace(BOTNAME, ' ')
         return get_bot_instance(channel).chatbot.elaborate_query(message)
+
+    if config.AUTO_SPEAK:
+        # chatbot speak without being pinged every AUTO_SPEAK_INTERVAL
+        bot_instance = get_bot_instance(channel)
+
+        bot_instance.last_conversation_lines.append(message)
+        while len(bot_instance.last_conversation_lines) > 3:
+            bot_instance.last_conversation_lines.pop(0)
+            
+        last_time = bot_instance.last_chatbot_auto_speak
+        time_since_last = (datetime.datetime.now() - last_time).total_seconds()
+        if time_since_last > config.AUTO_SPEAK_INTERVAL:
+            context = "\n".join(bot_instance.last_conversation_lines)
+            bot_instance.last_chatbot_auto_speak = datetime.datetime.now()
+            return bot_instance.chatbot.elaborate_query(context, new_context=True)
+
 
 
 def on_join(sender):

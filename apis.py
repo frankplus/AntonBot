@@ -14,11 +14,11 @@ class Chatbot:
         self.context_id = None
         self.last_request_date = datetime.datetime.now()
 
-    def elaborate_query(self, query):
+    def elaborate_query(self, query, new_context=False):
 
-        # if more than one hour after last request, then new context
+        # reset context after 10 min inactivity
         time_since_last = (datetime.datetime.now() - self.last_request_date).total_seconds()
-        if time_since_last > 3600:
+        if time_since_last > 600 or new_context:
             self.context_id = None
         self.last_request_date = datetime.datetime.now()
 
