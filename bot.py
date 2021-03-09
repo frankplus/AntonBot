@@ -48,7 +48,6 @@ class BotInstance:
         self.game_instance = game.Game()
         self.chatbot = Chatbot()
         self.chess_instance = chessbot.Game(id)
-        self.last_chatbot_auto_speak = datetime.datetime.now()
         self.last_conversation_lines = list()
 
 bot_instances = dict()
@@ -116,13 +115,13 @@ async def elaborate_query(channel, sender, message):
         bot_instance.last_conversation_lines.append(message)
         while len(bot_instance.last_conversation_lines) > 3:
             bot_instance.last_conversation_lines.pop(0)
-            
-        last_time = bot_instance.last_chatbot_auto_speak
-        time_since_last = (datetime.datetime.now() - last_time).total_seconds()
-        if time_since_last > config.AUTO_SPEAK_INTERVAL:
+        
+        if random.random() < AUTO_SPEAK_PROBABILITY:
             context = "\n".join(bot_instance.last_conversation_lines)
-            bot_instance.last_chatbot_auto_speak = datetime.datetime.now()
-            return bot_instance.chatbot.elaborate_query(context, new_context=True)
+            answer, score = bot_instance.chatbot.elaborate_query(context, new_context=True)
+            if random.random() < pow(2, 0.05*score):
+                return answer
+
 
 
 

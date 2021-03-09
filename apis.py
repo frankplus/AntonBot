@@ -30,7 +30,7 @@ class Chatbot:
             data = json_request(url, timeout=60)
             if data:
                 self.context_id = data["context"]
-                return data["output"]
+                return data["output"], float(data["score"])
 
         else:
             q = {'key': CLEVERBOT_KEY, 'input': query}
@@ -40,7 +40,7 @@ class Chatbot:
             data = json_request(url)
             if data:
                 self.context_id = data["cs"]
-                return data["output"]
+                return data["output"], 1.0
 
 
 class Miniflux:
