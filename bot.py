@@ -106,7 +106,8 @@ async def elaborate_query(channel, sender, message):
                 message = split[1]
         else:
             message = message.replace(BOTNAME, ' ')
-        return get_bot_instance(channel).chatbot.elaborate_query(message)
+        answer, score = get_bot_instance(channel).chatbot.elaborate_query(message)
+        return answer
 
     if config.AUTO_SPEAK:
         # chatbot speak without being pinged every AUTO_SPEAK_INTERVAL
