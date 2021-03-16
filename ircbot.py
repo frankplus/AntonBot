@@ -5,6 +5,9 @@ import bot
 from config import CHANNEL, BOTNAME, IRC_SERVER_ADDRESS
 from apis import Miniflux
 import asyncio
+import logging
+
+logging.basicConfig(filename='bot_log.txt', level=logging.INFO)
 
 class MyBot:
     def __init__(self):
@@ -16,7 +19,7 @@ class MyBot:
             await self.bot.connect(IRC_SERVER_ADDRESS, 6667)
             await self.bot.register(BOTNAME)
             await self.bot.join(CHANNEL)
-            print("IRC bot connected", flush=True)
+            logging.info("IRC bot connected", flush=True)
             await self.rss_reader_loop()
         await self.bot.run(init())
 
@@ -27,12 +30,16 @@ class MyBot:
 
         with open("chatlog.txt", 'a+') as f:
             f.write(f"{sender}: {message}\n")
-        response = await bot.elaborate_query(channel, sender, message)
-        if response:
-            lines = response.split("\n")
-            for line in lines:
-                if line:
-                    self.bot.privmsg(channel, line)
+
+        try:
+            response = await bot.elaborate_query(channel, sender, message)
+            if response:
+                lines = response.split("\n")
+                for line in lines:
+                    if line:
+                        self.bot.privmsg(channel, line)
+        except:
+            logging.exception(f'An exception was thrown while elaborating message: {message}')
 
     @Event.join
     async def on_join(self, sender, channel):

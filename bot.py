@@ -128,7 +128,4 @@ async def elaborate_query(channel, sender, message):
 
 def on_join(sender):
     if sender == BOTNAME:
-        return "Hey y'all. Mr Bot is here!"
-
-    if sender == "MrFrank":
-        return "MrFrank sito inseminio?"
+        return "Hey y'all. Who summoned me?"

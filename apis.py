@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 import miniflux
 import urllib
 import emoji
+import logging
 
 class Chatbot:
     def __init__(self):
@@ -51,10 +52,10 @@ class Miniflux:
         try:
             entries = self.client.get_entries(status="unread", limit=limit)["entries"]
         except miniflux.ClientError as err:
-            print("miniflux client error: {}".format(err.get_error_reason()), flush=True)
+            logging.error("miniflux client error: {}".format(err.get_error_reason()))
             return None
         except:
-            print("Unexpected error getting RSS entries", flush=True)
+            logging.exception("Unexpected error getting RSS entries")
             return None
 
         response = ""
