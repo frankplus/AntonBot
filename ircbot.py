@@ -19,7 +19,7 @@ class MyBot:
             await self.bot.connect(IRC_SERVER_ADDRESS, 6667)
             await self.bot.register(BOTNAME)
             await self.bot.join(CHANNEL)
-            logging.info("IRC bot connected", flush=True)
+            logging.info("IRC bot connected")
             await self.rss_reader_loop()
         await self.bot.run(init())
 
