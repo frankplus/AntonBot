@@ -19,12 +19,12 @@ class Chatbot:
 
         # reset context after 10 min inactivity
         time_since_last = (datetime.datetime.now() - self.last_request_date).total_seconds()
-        if time_since_last > 600 or new_context:
-            self.context_id = None
+        if time_since_last > 600:
+            new_context = True
         self.last_request_date = datetime.datetime.now()
 
         if USE_LOCAL_CHATBOT:
-            q = {'key': CHATBOT_KEY, 'input': query}
+            q = {'key': CHATBOT_KEY, 'input': query, 'new_context': new_context}
             if self.context_id:
                 q['context'] = self.context_id
             url = 'http://localhost:2834/getreply?' + urlencode(q)
@@ -34,6 +34,8 @@ class Chatbot:
                 return data["output"], float(data["score"])
 
         else:
+            if new_context:
+                self.context_id = None
             q = {'key': CLEVERBOT_KEY, 'input': query}
             if self.context_id:
                 q['cs'] = self.context_id
