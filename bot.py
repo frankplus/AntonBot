@@ -119,7 +119,7 @@ async def elaborate_query(channel, sender, message):
     if bot_pinged or (config.AUTO_SPEAK and random.random() < AUTO_SPEAK_PROBABILITY):
         context = "\n".join(bot_instance.last_conversation_lines)
         answer, score = bot_instance.chatbot.elaborate_query(context, new_context=True)
-        if bot_pinged or (random.random() < pow(2, 0.01*score)):
+        if bot_pinged or (random.random() < pow(2, 0.3*score)):
             return answer
 
 
