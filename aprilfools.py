@@ -2,7 +2,7 @@
 
 from pyrcb2 import IRCBot, Event
 import bot
-from config import CHANNEL, IRC_SERVER_ADDRESS
+from config import CHANNEL, BOTNAME, IRC_SERVER_ADDRESS
 from apis import Miniflux
 import asyncio
 import logging
@@ -17,8 +17,8 @@ class MyBot:
     async def run(self):
         async def init():
             await self.bot.connect(IRC_SERVER_ADDRESS, 6667)
-            await self.bot.register("MrFrank_")
-            await self.bot.join("#bugbyte_test")
+            await self.bot.register(BOTNAME)
+            await self.bot.join(CHANNEL)
             logging.info("IRC bot connected")
             await self.cli_input()
         await self.bot.run(init())
