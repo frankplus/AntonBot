@@ -79,24 +79,6 @@ handlers = {
 async def elaborate_query(channel, sender, message):
     message = message.strip()
 
-    if message.startswith("!"):
-        splitted = message[1:].split(" ", 1)
-        command = splitted[0]
-        args = splitted[1] if len(splitted)>1 else ""
-        if command in handlers:
-            return handlers[command](channel, sender, args)
-
-    elif message[0] == ':' and message[-1] == ':' and len(message) >= 3:
-        return emojize(message)
-    elif message.lower() in ["hi", "hello", "yo", "hey", "we"]:
-        return random.choice(greetings).format(sender)
-    elif enableUrlInfo:
-        found_urls = re.findall(r'(https?://[^\s]+)', message)
-        for url in found_urls:
-            info = get_url_info(url)
-            if info:
-                return info
-
     # chatbot pinged
     pos = message.find(BOTNAME)
     bot_pinged = True if pos != -1 else False
@@ -116,16 +98,12 @@ async def elaborate_query(channel, sender, message):
         bot_instance.last_conversation_lines.pop(0)
 
 
-    if bot_pinged or (config.AUTO_SPEAK and random.random() < AUTO_SPEAK_PROBABILITY):
-        context = "\n".join(bot_instance.last_conversation_lines)
-        answer, score = bot_instance.chatbot.elaborate_query(context, new_context=True)
-        if bot_pinged or (random.random() < pow(2, 0.2*score)):
-            bot_instance.last_conversation_lines.append(answer)
-            return answer
-
-
+    context = "\n".join(bot_instance.last_conversation_lines)
+    answer, score = bot_instance.chatbot.elaborate_query(context, new_context=True)
+    if bot_pinged or (random.random() < pow(2, 0.2*score)):
+        bot_instance.last_conversation_lines.append(answer)
+        return answer
 
 
 def on_join(sender):
-    if sender == BOTNAME:
-        return "Hey y'all. Who summoned me?"
+    pass
