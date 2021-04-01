@@ -57,7 +57,7 @@ class MyBot:
                     for line in lines:
                         if line: 
                             self.bot.privmsg(channel, line)
-            await asyncio.sleep(60)
+            await asyncio.sleep(600)
 
 
 async def main():
