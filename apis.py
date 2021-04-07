@@ -9,6 +9,7 @@ import miniflux
 import urllib
 import emoji
 import logging
+import twitter
 
 class Chatbot:
     def __init__(self):
@@ -237,3 +238,18 @@ def plot_function(query):
 
 def emojize(query):
     return emoji.emojize(query, use_aliases=True)
+
+
+def tweet(message):
+    api = twitter.Api(consumer_key=TWITTER_CONSUMER_KEY,
+                    consumer_secret=TWITTER_CONSUMER_SECRET,
+                    access_token_key=TWITTER_ACCESS_TOKEN_KEY,
+                    access_token_secret=TWITTER_ACCESS_TOKEN_SECRET,
+                    input_encoding='utf-8')
+    try:
+        status = api.PostUpdate(message)
+        logging.info(status)
+        return "Message tweeted!"
+    except:
+        logging.exception("Could not send tweet message")
+        return "Error sending tweet"

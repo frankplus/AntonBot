@@ -7,3 +7,4 @@ emoji
 chess
 python-telegram-bot
 pyrcb2
+python-twitter

@@ -35,7 +35,8 @@ def get_help(channel, sender, query):
         'game': game.get_help(),
         'chess': chessbot.get_help(),
         'wolfram': '!wolfram <query> to calculate or ask any question.',
-        'plot': '!plot <query> to plot any mathematical function.'
+        'plot': '!plot <query> to plot any mathematical function.',
+        'tweet': '!tweet <message> to tweet a message'
     }
     if query:
         return commands.get(query, "Invalid command")
@@ -73,6 +74,7 @@ handlers = {
     "wolfram": lambda channel, sender, query: wolfram_req(query) if query else None,
     "plot": lambda channel, sender, query: plot_function(query) if query else None,
     "iliad": lambda channel, sender, query: f"Dati rimanenti giornalieri: {iliad.totale_dati_giornalieri(config.iliad_login_info):.2f} GB",
+    "tweet": lambda channel, sender, query: tweet(query),
     "help": get_help
 }
 
