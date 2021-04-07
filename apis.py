@@ -249,7 +249,8 @@ def tweet(message):
     try:
         status = api.PostUpdate(message)
         logging.info(status)
-        return "Message tweeted!"
+        link = f"https://twitter.com/{status.user.screen_name}/status/{status.id}"
+        return f"Message tweeted! {link}"
     except:
         logging.exception("Could not send tweet message")
         return "Error sending tweet"
