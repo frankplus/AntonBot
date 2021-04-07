@@ -8,31 +8,35 @@ from bs4 import BeautifulSoup
 import miniflux
 import urllib
 import emoji
+import logging
+import twitter
 
 class Chatbot:
     def __init__(self):
         self.context_id = None
         self.last_request_date = datetime.datetime.now()
 
-    def elaborate_query(self, query):
+    def elaborate_query(self, query, new_context=False):
 
-        # if more than one hour after last request, then new context
+        # reset context after 10 min inactivity
         time_since_last = (datetime.datetime.now() - self.last_request_date).total_seconds()
-        if time_since_last > 3600:
-            self.context_id = None
+        if time_since_last > 600:
+            new_context = True
         self.last_request_date = datetime.datetime.now()
 
         if USE_LOCAL_CHATBOT:
-            q = {'key': CHATBOT_KEY, 'input': query}
+            q = {'key': CHATBOT_KEY, 'input': query, 'new_context': new_context}
             if self.context_id:
                 q['context'] = self.context_id
             url = 'http://localhost:2834/getreply?' + urlencode(q)
             data = json_request(url, timeout=60)
             if data:
                 self.context_id = data["context"]
-                return data["output"]
+                return data["output"], float(data["score"])
 
         else:
+            if new_context:
+                self.context_id = None
             q = {'key': CLEVERBOT_KEY, 'input': query}
             if self.context_id:
                 q['cs'] = self.context_id
@@ -40,7 +44,7 @@ class Chatbot:
             data = json_request(url)
             if data:
                 self.context_id = data["cs"]
-                return data["output"]
+                return data["output"], 1.0
 
 
 class Miniflux:
@@ -51,15 +55,18 @@ class Miniflux:
         try:
             entries = self.client.get_entries(status="unread", limit=limit)["entries"]
         except miniflux.ClientError as err:
-            print("miniflux client error: {}".format(err.get_error_reason()), flush=True)
+            logging.error("miniflux client error: {}".format(err.get_error_reason()))
             return None
         except:
-            print("Unexpected error getting RSS entries", flush=True)
+            logging.exception("Unexpected error getting RSS entries")
             return None
 
         response = ""
         for entry in entries:
-            publish_date = datetime.datetime.strptime(entry["published_at"], "%Y-%m-%dT%H:%M:%SZ")
+            try:
+                publish_date = datetime.datetime.strptime(entry["published_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
+            except ValueError:
+                publish_date = datetime.datetime.strptime(entry["published_at"], "%Y-%m-%dT%H:%M:%SZ")
             publish_date = publish_date.strftime("%Y-%m-%d")
             response += "\x0303[miniflux]\x03 {} {} on {} \x02→\x02 {} \n".format(entry["url"], entry["author"], publish_date, entry["title"])
         
@@ -231,3 +238,18 @@ def plot_function(query):
 
 def emojize(query):
     return emoji.emojize(query, use_aliases=True)
+
+
+def tweet(message):
+    api = twitter.Api(consumer_key=TWITTER_CONSUMER_KEY,
+                    consumer_secret=TWITTER_CONSUMER_SECRET,
+                    access_token_key=TWITTER_ACCESS_TOKEN_KEY,
+                    access_token_secret=TWITTER_ACCESS_TOKEN_SECRET,
+                    input_encoding='utf-8')
+    try:
+        status = api.PostUpdate(message)
+        logging.info(status)
+        return "Message tweeted!"
+    except:
+        logging.exception("Could not send tweet message")
+        return "Error sending tweet"

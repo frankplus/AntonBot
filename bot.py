@@ -5,6 +5,9 @@ import corona
 import game
 import chessbot
 from config import BOTNAME
+import iliad
+import config
+import datetime
 
 enableUrlInfo = True
 
@@ -32,7 +35,8 @@ def get_help(channel, sender, query):
         'game': game.get_help(),
         'chess': chessbot.get_help(),
         'wolfram': '!wolfram <query> to calculate or ask any question.',
-        'plot': '!plot <query> to plot any mathematical function.'
+        'plot': '!plot <query> to plot any mathematical function.',
+        'tweet': '!tweet <message> to tweet a message'
     }
     if query:
         return commands.get(query, "Invalid command")
@@ -45,6 +49,7 @@ class BotInstance:
         self.game_instance = game.Game()
         self.chatbot = Chatbot()
         self.chess_instance = chessbot.Game(id)
+        self.last_conversation_lines = list()
 
 bot_instances = dict()
 
@@ -68,6 +73,8 @@ handlers = {
     "chess": lambda channel, sender, query: get_bot_instance(channel).chess_instance.elaborate_query(sender, query),
     "wolfram": lambda channel, sender, query: wolfram_req(query) if query else None,
     "plot": lambda channel, sender, query: plot_function(query) if query else None,
+    "iliad": lambda channel, sender, query: f"Dati rimanenti giornalieri: {iliad.totale_dati_giornalieri(config.iliad_login_info):.2f} GB",
+    "tweet": lambda channel, sender, query: tweet(query),
     "help": get_help
 }
 
@@ -92,21 +99,35 @@ async def elaborate_query(channel, sender, message):
             if info:
                 return info
 
-    # chatbot
+    # chatbot pinged
     pos = message.find(BOTNAME)
-    if pos != -1:
+    bot_pinged = True if pos != -1 else False
+
+    if bot_pinged:
+        # remove bot name
         if pos == 0:
             split = message.split(' ', 1)
             if len(split) > 1:
                 message = split[1]
         else:
             message = message.replace(BOTNAME, ' ')
-        return get_bot_instance(channel).chatbot.elaborate_query(message)
+
+    bot_instance = get_bot_instance(channel)
+    bot_instance.last_conversation_lines.append(message)
+    while len(bot_instance.last_conversation_lines) > 5:
+        bot_instance.last_conversation_lines.pop(0)
+
+
+    if bot_pinged or (config.AUTO_SPEAK and random.random() < AUTO_SPEAK_PROBABILITY):
+        context = "\n".join(bot_instance.last_conversation_lines)
+        answer, score = bot_instance.chatbot.elaborate_query(context, new_context=True)
+        if bot_pinged or (random.random() < pow(2, 0.1*score)):
+            bot_instance.last_conversation_lines.append(answer)
+            return answer
+
+
 
 
 def on_join(sender):
     if sender == BOTNAME:
-        return "Hey y'all. Mr Bot is here!"
-
-    if sender == "MrFrank":
-        return "MrFrank sito inseminio?"
+        return "Hey y'all. Who summoned me?"
