@@ -51,6 +51,15 @@ def get_italy_status():
     
     return info
 
+def get_colore_regione(query):
+    data = json_request("https://covid19.zappi.me/coloreRegioni.php")
+    for color in data:
+        for regione in data[color]:
+            print(regione)
+            if regione.lower() == query.lower():
+                return f"Zona {color}"
+    return "Zona sconosciuta"
+
 def get_italy_regione(query):
     data = json_request('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni-latest.json')
     if not data:
@@ -65,9 +74,10 @@ def get_italy_regione(query):
             deceduti = format(regione["deceduti"])
             totale_casi = format(regione["totale_casi"])
             tamponi = format(regione["tamponi"])
+            colore = get_colore_regione(query)
 
-            info = 'Attualmente positivi: {} ({}) - Dimessi guariti: {} - Deceduti: {} - Totale casi: {} ({}) - Tamponi: {}' \
-                    .format(totale_positivi, variazione_totale_positivi, dimessi_guariti, deceduti, totale_casi, nuovi_positivi, tamponi)
+            info = 'Attualmente positivi: {} ({}) - Dimessi guariti: {} - Deceduti: {} - Totale casi: {} ({}) - Tamponi: {} - {}' \
+                    .format(totale_positivi, variazione_totale_positivi, dimessi_guariti, deceduti, totale_casi, nuovi_positivi, tamponi, colore)
 
             return info
 
