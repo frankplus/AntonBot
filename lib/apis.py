@@ -2,7 +2,7 @@ import requests
 import datetime
 from urllib.parse import urlparse, parse_qs, urlencode
 from config import *
-from utils import json_request, http_request
+from lib.utils import json_request, http_request
 import pypandoc
 from bs4 import BeautifulSoup
 import miniflux
@@ -254,3 +254,6 @@ def tweet(message):
     except:
         logging.exception("Could not send tweet message")
         return "Error sending tweet"
+
+def fortune():
+    return http_request("https://api.ef.gy/fortune", headers={'Accept': 'text/plain'}).text

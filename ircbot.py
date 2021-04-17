@@ -3,7 +3,7 @@
 from pyrcb2 import IRCBot, Event
 import bot
 from config import CHANNEL, BOTNAME, IRC_SERVER_ADDRESS
-from apis import Miniflux
+from lib.apis import Miniflux
 import asyncio
 import logging
 

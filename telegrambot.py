@@ -4,7 +4,7 @@ import logging
 from telegram import Update
 from telegram.ext import Updater, PrefixHandler, CallbackContext, MessageHandler, Filters
 import bot
-import corona
+from lib import corona
 import config
 
 corona.irc_formatting = False

@@ -1,13 +1,9 @@
-from apis import *
+from lib.apis import *
 import re
 import random
-import corona
-import game
-import chessbot
+from lib import corona, game, chessbot, iliad
 from config import BOTNAME
-import iliad
 import config
-import datetime
 
 enableUrlInfo = True
 
@@ -75,6 +71,7 @@ handlers = {
     "plot": lambda channel, sender, query: plot_function(query) if query else None,
     "iliad": lambda channel, sender, query: f"Dati rimanenti giornalieri: {iliad.totale_dati_giornalieri(config.iliad_login_info):.2f} GB",
     "tweet": lambda channel, sender, query: tweet(query),
+    "fortune": lambda channel, sender, query: fortune(),
     "help": get_help
 }
 

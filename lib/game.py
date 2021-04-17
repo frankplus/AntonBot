@@ -1,7 +1,7 @@
 from enum import Enum
 import random
 import html
-from utils import json_request
+from lib.utils import json_request
 from urllib.parse import urlencode
 import json
 

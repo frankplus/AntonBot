@@ -1,4 +1,4 @@
-from utils import json_request
+from lib.utils import json_request
 
 irc_formatting = True
 
