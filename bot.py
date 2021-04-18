@@ -32,7 +32,8 @@ def get_help(channel, sender, query):
         'chess': chessbot.get_help(),
         'wolfram': '!wolfram <query> to calculate or ask any question.',
         'plot': '!plot <query> to plot any mathematical function.',
-        'tweet': '!tweet <message> to tweet a message'
+        'tweet': '!tweet <message> to tweet a message',
+        'fortune': '!fortune try this command yourself ;)'
     }
     if query:
         return commands.get(query, "Invalid command")
