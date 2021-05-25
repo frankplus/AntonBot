@@ -8,6 +8,7 @@ import logging
 try:
     chess_engine = chess.engine.SimpleEngine.popen_uci(config.CHESSENGINE_PATH)
 except:
+    chess_engine = None
     logging.warning("could not open chess engine")
 
 def engine_play(board):
@@ -39,8 +40,6 @@ class GameState(Enum):
 
 class Game:
     def __init__(self, id=0):
-        global chess_engine
-        self.engine = chess_engine
         self.id = id
 
         json_savestate = self.load_saved_state()
@@ -127,6 +126,10 @@ class Game:
         return response
 
     def elaborate_query(self, sender, query):
+
+        global chess_engine
+        if not chess_engine:
+            return "Could not load chess engine"
 
         query = query.split(" ", 1)
         command = query[0] if len(query) > 0 else ""
