@@ -3,8 +3,12 @@ import chess.engine
 import json
 from enum import Enum
 import config
+import logging
 
-chess_engine = chess.engine.SimpleEngine.popen_uci(config.CHESSENGINE_PATH)
+try:
+    chess_engine = chess.engine.SimpleEngine.popen_uci(config.CHESSENGINE_PATH)
+except:
+    logging.warning("could not open chess engine")
 
 def engine_play(board):
     global chess_engine
