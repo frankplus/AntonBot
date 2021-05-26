@@ -3,12 +3,19 @@ BOTNAME = "CovidBot"
 IRC_SERVER_ADDRESS = "irc.freenode.net"
 HTTP_REQUEST_TIMEOUT = 20 # timeout in seconds
 
+# https://console.cloud.google.com/apis/credentials
+YOUTUBE_KEY = '' 
+
+# https://programmablesearchengine.google.com/
+SEARCH_ENGINE = '' 
+
+# https://newsapi.org/register
 NEWSAPI_KEY = ''
+
+# https://openweathermap.org/api
 OPENWEATHER_KEY = ''
-YOUTUBE_KEY = ''
-META_API_AUTH = ''
+
 WOLFRAM_KEY = ''
-SEARCH_ENGINE = ''
 TELEGRAM_TOKEN = ''
 
 USE_LOCAL_CHATBOT = False
