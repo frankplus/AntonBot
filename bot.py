@@ -33,7 +33,9 @@ def get_help(channel, sender, query):
         'wolfram': '!wolfram <query> to calculate or ask any question.',
         'plot': '!plot <query> to plot any mathematical function.',
         'tweet': '!tweet <message> to tweet a message',
-        'fortune': '!fortune try this command yourself ;)'
+        'fortune': '!fortune try this command yourself ;)',
+        'shush': '!shush to make me stop being annoying',
+        'talk': '!talk if you want me to participate in your conversations'
     }
     if query:
         return commands.get(query, "Invalid command")
@@ -56,10 +58,12 @@ def get_bot_instance(id):
         bot_instances[id] = BotInstance(id)
     return bot_instances[id]
 
+def set_bot_autospeak(autospeak):
+    config.AUTO_SPEAK = autospeak
 
 handlers = {
     "corona": lambda channel, sender, query: corona.elaborate_query(query) if query else None,
-    "news": lambda channel, sender, query: get_latest_news(query),
+    "news": lambda channel, sender, query: get_latest_news(query),  
     "weather": lambda channel, sender, query: get_weather(query) if query else None,
     "youtube": lambda channel, sender, query: search_youtube_video(query) if query else None,
     "image": lambda channel, sender, query: search_image(query) if query else None,
@@ -73,6 +77,8 @@ handlers = {
     "iliad": lambda channel, sender, query: f"Dati rimanenti giornalieri: {iliad.totale_dati_giornalieri(config.iliad_login_info):.2f} GB",
     "tweet": lambda channel, sender, query: tweet(query),
     "fortune": lambda channel, sender, query: fortune(),
+    "shush": lambda channel, sender, query: set_bot_autospeak(False),
+    "talk": lambda channel, sender, query: set_bot_autospeak(True),
     "help": get_help
 }
 
