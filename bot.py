@@ -60,6 +60,10 @@ def get_bot_instance(id):
 
 def set_bot_autospeak(autospeak):
     config.AUTO_SPEAK = autospeak
+    if autospeak:
+        return "I will join your conversations"
+    else:
+        return "I'll be quiet then"
 
 handlers = {
     "corona": lambda channel, sender, query: corona.elaborate_query(query) if query else None,
