@@ -256,4 +256,4 @@ def tweet(message):
         return "Error sending tweet"
 
 def fortune():
-    return http_request("https://api.ef.gy/fortune", headers={'Accept': 'text/plain'}).text
+    return json_request("http://yerkee.com/api/fortune")['fortune']
