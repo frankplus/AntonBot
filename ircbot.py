@@ -43,7 +43,7 @@ class MyBot:
 
     @Event.join
     async def on_join(self, sender, channel):
-        response = bot.on_join(sender)
+        response = bot.on_join(sender, channel)
         if response:
             self.bot.privmsg(channel, response)
 

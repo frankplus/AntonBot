@@ -36,6 +36,7 @@ def get_help(channel, sender, query):
         'fortune': '!fortune try this command yourself ;)',
         'shush': '!shush to make me stop being annoying',
         'talk': '!talk if you want me to participate in your conversations'
+        'tell' '!tell <recipient> <message> to tell a message when the recipient joins the channel'
     }
     if query:
         return commands.get(query, "Invalid command")
@@ -49,6 +50,20 @@ class BotInstance:
         self.chatbot = Chatbot()
         self.chess_instance = chessbot.Game(id)
         self.last_conversation_lines = list()
+        self.tell_on_join = dict()
+    
+    def add_tell(self, query):
+        splitted = query.split(" ", 1)
+        recipient = splitted[0]
+        message = splitted[1] if len(splitted)>1 else ""
+        self.tell_on_join[recipient] = message
+        return "sure"
+    
+    def on_join(self, joiner):
+        if joiner in self.tell_on_join:
+            message = self.tell_on_join[joiner]
+            del self.tell_on_join[joiner]
+            return f"{joiner}, {message}"
 
 bot_instances = dict()
 
@@ -83,6 +98,7 @@ handlers = {
     "fortune": lambda channel, sender, query: fortune(),
     "shush": lambda channel, sender, query: set_bot_autospeak(False),
     "talk": lambda channel, sender, query: set_bot_autospeak(True),
+    "tell": lambda channel, sender, query: get_bot_instance(channel).add_tell(query) if query else None,
     "help": get_help
 }
 
@@ -136,6 +152,9 @@ async def elaborate_query(channel, sender, message):
 
 
 
-def on_join(sender):
+def on_join(sender, channel):
+    sender = str(sender)
     if sender == BOTNAME:
         return "Hey y'all. Who summoned me?"
+
+    return get_bot_instance(channel).on_join(sender)
