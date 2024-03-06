@@ -19,17 +19,20 @@ class Chatbot:
         self.client = OpenAI(api_key=CHATGPT_KEY)
 
     def elaborate_query(self, conversation):
-        system_message = f"Imagine you are {BOTNAME}, a friendly Italian friend, " \
-                        "participating in an ongoing group chat with your Italian " \
-                        "friends. Based on the previous conversation, generate a " \
-                        "short and humorous reply that AntonBot would likely give " \
-                        "in response to the latest message in the group chat."
+        prompt = f"You are {BOTNAME}, a friendly Italian friend, " \
+                    "participating in a group chat with your friends. " \
+                    "Based on the previous conversation, generate a " \
+                    f"very short reply that {BOTNAME} would likely give " \
+                    "in response to the latest message in the group chat. " \
+                    "Your responses should match the tone and style of the group. \n" \
+                    "---\n"
+        
+        prompt += '\n'.join(conversation)
 
         try:
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "system", "content": system_message},
-                          {"role": "user", "content": '\n'.join(conversation)}]
+                model="gpt-4-turbo-preview",
+                messages=[{"role": "user", "content": prompt}]
             )
             response_message = response.choices[0].message.content
 
