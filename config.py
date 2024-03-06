@@ -1,6 +1,7 @@
 CHANNEL = "#bugbyte-ita"
-BOTNAME = "CovidBot"
-IRC_SERVER_ADDRESS = "irc.freenode.net"
+BOTNAME = "AntonBot"
+IRC_SERVER_ADDRESS = "irc.libera.chat"
+IRC_SERVER_PASS = "" # ignore if irc server does not have a password
 HTTP_REQUEST_TIMEOUT = 20 # timeout in seconds
 
 # https://console.cloud.google.com/apis/credentials
