@@ -48,6 +48,18 @@ class Chatbot:
         except Exception as e:
             logging.error(f"Failed to send request to chatgpt: {e}")
 
+    def generate_image(self, prompt):
+        response = self.client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            size="1024x1024",
+            quality="standard",
+            n=1,
+        )
+
+        image_url = response.data[0].url
+        return image_url
+
 
 class Miniflux:
     def __init__(self):
@@ -167,21 +179,6 @@ def search_youtube_video(query, music=False):
         url = "https://www.youtube.com/watch?v={}".format(video_id)
         info = get_youtube_videoinfo(item)
         return "\x0303[youtube]\x03 {} {}".format(url, info)
-
-    return "I haven't found anything"
-
-def search_image(query):
-    q = {'num': 1, 'searchType':'image', 'q': query, 'key': YOUTUBE_KEY, 'cx': SEARCH_ENGINE}
-    url = "https://www.googleapis.com/customsearch/v1?"+urlencode(q)
-    data = json_request_get(url)
-    if not data:
-        return None
-    items = data["items"]
-    if len(items) > 0:
-        item = items[0]
-        url = item['link']
-        title = item['title']
-        return f'\x0303[image]\x03 {title} → {url}'
 
     return "I haven't found anything"
 
