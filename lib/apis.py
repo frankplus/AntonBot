@@ -10,29 +10,25 @@ import urllib
 import emoji
 import logging
 import twitter
+from openai import OpenAI
+
+logging.getLogger().setLevel(logging.DEBUG)
 
 class Chatbot:
     def __init__(self):
-        self.last_request_date = datetime.datetime.now()
+        self.client = OpenAI(api_key=CHATGPT_KEY)
 
     def elaborate_query(self, conversation):
-        if not USE_LOCAL_CHATBOT:
-            return None
-        
-        url = 'http://localhost:8081/completion'
-        prompt = "Dialog with a funny guy called Anton, he gives very short replies.\n\n" \
-                    + "Anton: how can I help you?\n" \
-                    + "\n".join(conversation) \
-                    + f"\nAnton: "
-        data = {"prompt": prompt, "n_predict": 32, "stop": ["User:", "Anton:"]}
-        print(data)
-        response = http_request_post(url, json_data=data, json=True, timeout=40)
-        print(response)
+        system_message = f"Sei un amico di nome {BOTNAME}. Le tue risposte sono brevi ma significative."
 
-        if not response:
-            return None
-
-        return response["content"].strip()
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "system", "content": system_message}] + conversation
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            logging.error(f"Failed to send request to chatgpt: {e}")
 
 
 class Miniflux:

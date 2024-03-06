@@ -126,28 +126,16 @@ async def elaborate_query(channel, sender, message):
     pos = message.find(BOTNAME)
     bot_pinged = True if pos != -1 else False
 
-    if bot_pinged:
-        # remove bot name
-        if pos == 0:
-            split = message.split(' ', 1)
-            if len(split) > 1:
-                message = split[1]
-        else:
-            message = message.replace(BOTNAME, ' ')
-
     bot_instance = get_bot_instance(channel)
-    bot_instance.last_conversation_lines.append(f"User: {message}")
-    while len(bot_instance.last_conversation_lines) > 4:
+    bot_instance.last_conversation_lines.append({"role": "user", "content": message})
+    while len(bot_instance.last_conversation_lines) > 5:
         bot_instance.last_conversation_lines.pop(0)
-
 
     if bot_pinged or (config.AUTO_SPEAK and random.random() < AUTO_SPEAK_PROBABILITY):
         answer = bot_instance.chatbot.elaborate_query(bot_instance.last_conversation_lines)
         if not answer: return None
-        bot_instance.last_conversation_lines.append(f"Anton: {answer}")
+        bot_instance.last_conversation_lines.append({"role": "assistant", "content": answer})
         return answer
-
-
 
 
 def on_join(sender, channel):
