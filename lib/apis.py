@@ -25,13 +25,15 @@ class Chatbot:
                     + f"\nAnton: "
         data = {"prompt": prompt,"n_predict": 32}
         print(data)
-        response = http_request_post(url, json_data=data, json=True)
+        response = http_request_post(url, json_data=data, json=True, timeout=40)
         print(response)
 
         if not response:
             return None
 
-        return response["content"].split('\n')[0] #take only the first line
+        response = response["content"].split('\n')[0] #take only the first line
+        response = response.strip()
+        return response
 
 
 class Miniflux:
