@@ -1,11 +1,11 @@
 from distutils.core import setup
 setup(
-    name = "CoronaBot",
-    version = "0.1.0",
-    description = "An IRC bot for coronavirus reports, news search and other.",
+    name = "AntonBot",
+    version = "1.0.0",
+    description = "AntonBot is a multifaceted chatbot designed for both IRC and Telegram platforms, offering a variety of features such as news updates, weather reports, and content generation through simple commands.",
     author = "Francesco Pham",
     author_email = "pham.francesco@gmail.com",
-    url = "https://github.com/frankplus/coronavirus-irc-bot",
+    url = "https://github.com/frankplus/AntonBot",
     download_url = "",
-    keywords = ["irc", "event", "coronavirus", "bot"]
+    keywords = ["Chatbot", "IRC", "Telegram", "Real-time information", "Entertainment", "Utilities"]
 )
