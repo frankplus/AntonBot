@@ -2,7 +2,7 @@
 
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackContext, MessageHandler, filters
 import bot
 from lib import corona
 import config
@@ -16,9 +16,6 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-
-def error_handler(update, context):
-    logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 def message_handler(update: Update, context: CallbackContext):
     message = update.message.text
@@ -44,12 +41,7 @@ def message_handler(update: Update, context: CallbackContext):
 
 
 def main(blocking = True):
-    """Start the bot."""
-    # Create the Updater and pass it your bot's token.
-    updater = Updater(config.TELEGRAM_TOKEN)
-
-    # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
+    application = ApplicationBuilder().token(config.TELEGRAM_TOKEN).build()
 
     for command, handler in bot.handlers.items():
         def make_handler(handler):
@@ -64,21 +56,13 @@ def main(blocking = True):
                 update.message.reply_text(response)
             return telegram_handler
 
-        dispatcher.add_handler(CommandHandler(command, make_handler(handler)))
+        application.add_handler(CommandHandler(command, make_handler(handler)))
 
     # On non-command i.e message 
-    dispatcher.add_handler(MessageHandler(filters.text & (~filters.command), message_handler))
-
-    dispatcher.add_error_handler(error_handler)
+    application.add_handler(MessageHandler(filters.text & (~filters.command), message_handler))
 
     # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
-    if blocking:
-        updater.idle()
+    application.run_polling()
 
 
 if __name__ == '__main__':
