@@ -1,7 +1,7 @@
 from enum import Enum
 import random
 import html
-from lib.utils import json_request
+from lib.utils import json_request_get
 from urllib.parse import urlencode
 import json
 
@@ -33,7 +33,7 @@ def request_questions(num_questions, difficulty = None, category = None):
     if difficulty:
         q['difficulty'] = difficulty
     url = "https://opentdb.com/api.php?"+urlencode(q)
-    data = json_request(url)
+    data = json_request_get(url)
     if not data:
         return None
     if data["response_code"] == 0:
@@ -41,7 +41,7 @@ def request_questions(num_questions, difficulty = None, category = None):
 
 def get_categories():
     url = "https://opentdb.com/api_category.php"
-    data = json_request(url)
+    data = json_request_get(url)
     if not data:
         return None
     response = ""

@@ -2,7 +2,7 @@ import requests
 import datetime
 from urllib.parse import urlparse, parse_qs, urlencode
 from config import *
-from lib.utils import json_request, http_request
+from lib.utils import json_request_get, http_request_get, http_request_post
 import pypandoc
 from bs4 import BeautifulSoup
 import miniflux
@@ -13,38 +13,25 @@ import twitter
 
 class Chatbot:
     def __init__(self):
-        self.context_id = None
         self.last_request_date = datetime.datetime.now()
 
-    def elaborate_query(self, query, new_context=False):
+    def elaborate_query(self, conversation):
+        if not USE_LOCAL_CHATBOT:
+            return None
+        
+        url = 'http://localhost:8081/completion'
+        prompt = "Dialog with an assistant named Anton who gives very brief answers.\n\n" \
+                    + "\n".join(conversation) \
+                    + f"\nAnton: "
+        data = {"prompt": prompt,"n_predict": 32}
+        print(data)
+        response = http_request_post(url, json_data=data, json=True)
+        print(response)
 
-        # reset context after 10 min inactivity
-        time_since_last = (datetime.datetime.now() - self.last_request_date).total_seconds()
-        if time_since_last > 600:
-            new_context = True
-        self.last_request_date = datetime.datetime.now()
+        if not response:
+            return None
 
-        if USE_LOCAL_CHATBOT:
-            q = {'key': CHATBOT_KEY, 'input': query, 'new_context': new_context}
-            if self.context_id:
-                q['context'] = self.context_id
-            url = 'http://localhost:2834/getreply?' + urlencode(q)
-            data = json_request(url, timeout=60)
-            if data:
-                self.context_id = data["context"]
-                return data["output"], float(data["score"])
-
-        else:
-            if new_context:
-                self.context_id = None
-            q = {'key': CLEVERBOT_KEY, 'input': query}
-            if self.context_id:
-                q['cs'] = self.context_id
-            url = 'https://www.cleverbot.com/getreply?' + urlencode(q)
-            data = json_request(url)
-            if data:
-                self.context_id = data["cs"]
-                return data["output"], 1.0
+        return response["content"].split('\n')[0] #take only the first line
 
 
 class Miniflux:
@@ -85,7 +72,7 @@ def get_latest_news(query = None):
     else:
         url = 'http://newsapi.org/v2/top-headlines?country=it&sortBy=publishedAt&apiKey={}'.format(NEWSAPI_KEY)
         
-    data = json_request(url)
+    data = json_request_get(url)
     if not data:
         return None
     if data["status"] == "ok" and data["totalResults"] > 0:
@@ -99,7 +86,7 @@ def get_latest_news(query = None):
 def get_weather(location):
 
     url = 'http://api.openweathermap.org/data/2.5/forecast?q={}&units=metric&appid={}'.format(location, OPENWEATHER_KEY)
-    data = json_request(url)
+    data = json_request_get(url)
     if not data:
         return None
     if data["cod"] == '200':
@@ -140,7 +127,7 @@ def get_youtube_description(query):
     if "v" in url_queries:
         video_id = url_queries["v"][0]
         url = 'https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id={}&key={}'.format(video_id, YOUTUBE_KEY)
-        data = json_request(url)
+        data = json_request_get(url)
         if not data:
             return None
         items = data["items"]
@@ -155,7 +142,7 @@ def search_youtube_video(query, music=False):
     if music:
         q['videoCategoryId'] = 10
     url = "https://www.googleapis.com/youtube/v3/search?"+urlencode(q)
-    data = json_request(url)
+    data = json_request_get(url)
     if not data:
         return None
     items = data["items"]
@@ -171,7 +158,7 @@ def search_youtube_video(query, music=False):
 def search_image(query):
     q = {'num': 1, 'searchType':'image', 'q': query, 'key': YOUTUBE_KEY, 'cx': SEARCH_ENGINE}
     url = "https://www.googleapis.com/customsearch/v1?"+urlencode(q)
-    data = json_request(url)
+    data = json_request_get(url)
     if not data:
         return None
     items = data["items"]
@@ -184,7 +171,7 @@ def search_image(query):
     return "I haven't found anything"
 
 def url_meta(url):
-    resp = http_request(url)
+    resp = http_request_get(url)
     if not resp:
         return None
     soup = BeautifulSoup(resp.text, 'lxml')
@@ -227,7 +214,7 @@ def latex_to_text(formula):
 
 def wolfram_req(query):
     url = f'https://api.wolframalpha.com/v1/result?i={query}&appid={WOLFRAM_KEY}'
-    resp = http_request(url)
+    resp = http_request_get(url)
     if resp:
         return resp.text.replace('\n', '. ')
 
@@ -256,4 +243,4 @@ def tweet(message):
         return "Error sending tweet"
 
 def fortune():
-    return json_request("http://yerkee.com/api/fortune")['fortune']
+    return json_request_get("http://yerkee.com/api/fortune")['fortune']

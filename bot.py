@@ -137,17 +137,16 @@ async def elaborate_query(channel, sender, message):
             message = message.replace(BOTNAME, ' ')
 
     bot_instance = get_bot_instance(channel)
-    bot_instance.last_conversation_lines.append(message)
+    bot_instance.last_conversation_lines.append(f"{sender}: {message}")
     while len(bot_instance.last_conversation_lines) > 5:
         bot_instance.last_conversation_lines.pop(0)
 
 
     if bot_pinged or (config.AUTO_SPEAK and random.random() < AUTO_SPEAK_PROBABILITY):
-        context = "\n".join(bot_instance.last_conversation_lines)
-        answer, score = bot_instance.chatbot.elaborate_query(context, new_context=True)
-        if bot_pinged or (random.random() < pow(2, 0.2*score)):
-            bot_instance.last_conversation_lines.append(answer)
-            return answer
+        answer = bot_instance.chatbot.elaborate_query(bot_instance.last_conversation_lines)
+        if not answer: return None
+        bot_instance.last_conversation_lines.append(f"Anton: {answer}")
+        return answer
 
 
 

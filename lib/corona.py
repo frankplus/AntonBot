@@ -1,4 +1,4 @@
-from lib.utils import json_request
+from lib.utils import json_request_get
 
 irc_formatting = True
 
@@ -16,7 +16,7 @@ def format(number, sign = False):
 
 
 def get_country_status(query):
-    data = json_request('https://api.covid19api.com/summary')
+    data = json_request_get('https://api.covid19api.com/summary')
     if not data:
         return None
 
@@ -31,7 +31,7 @@ def get_country_status(query):
             return info
 
 def get_italy_status():
-    data = json_request('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-andamento-nazionale.json')
+    data = json_request_get('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-andamento-nazionale.json')
     if not data:
         return None
 
@@ -52,7 +52,7 @@ def get_italy_status():
     return info
 
 def get_colore_regione(query):
-    data = json_request("https://covid19.zappi.me/coloreRegioni.php")
+    data = json_request_get("https://covid19.zappi.me/coloreRegioni.php")
     for color in data:
         for regione in data[color]:
             print(regione)
@@ -61,7 +61,7 @@ def get_colore_regione(query):
     return "Zona sconosciuta"
 
 def get_italy_regione(query):
-    data = json_request('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni-latest.json')
+    data = json_request_get('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-regioni-latest.json')
     if not data:
         return None
 
@@ -82,7 +82,7 @@ def get_italy_regione(query):
             return info
 
 def get_italy_province(query):
-    data = json_request('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-province-latest.json')
+    data = json_request_get('https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-json/dpc-covid19-ita-province-latest.json')
     if not data:
         return None
 
@@ -95,7 +95,7 @@ def get_italy_province(query):
 
 
 def get_global_status():
-    data = json_request('https://api.covid19api.com/summary')
+    data = json_request_get('https://api.covid19api.com/summary')
     if not data:
         return None
 
