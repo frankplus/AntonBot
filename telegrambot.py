@@ -19,7 +19,9 @@ logger = logging.getLogger(__name__)
 
 async def message_handler(update: Update, context: CallbackContext):
     message = update.message.text
-    bot_pinged = update.message.text and context.bot.username in update.message.text
+    bot_pinged = update.message.text and \
+        ((context.bot.username in update.message.text) or \
+         (context.bot.first_name in update.message.text))
 
     chat_id = str(update.effective_chat.id)
     bot_instance = bot.get_bot_instance(chat_id)
