@@ -17,7 +17,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-def message_handler(update: Update, context: CallbackContext):
+async def message_handler(update: Update, context: CallbackContext):
     message = update.message.text
     bot_pinged = update.message.text and context.bot.username in update.message.text
 
@@ -37,7 +37,7 @@ def message_handler(update: Update, context: CallbackContext):
         answer = bot_instance.chatbot.elaborate_query(bot_instance.last_conversation_lines)
         if not answer: return None
         bot_instance.last_conversation_lines.append(f"{config.BOTNAME}: {answer}")
-        update.message.reply_text(answer)
+        await update.message.reply_text(answer)
 
 
 def main(blocking = True):
@@ -45,7 +45,7 @@ def main(blocking = True):
 
     for command, handler in bot.handlers.items():
         def make_handler(handler):
-            def telegram_handler(update: Update, context: CallbackContext):
+            async def telegram_handler(update: Update, context: CallbackContext):
                 chat_id = str(update.effective_chat.id)
                 if update.message.from_user.username:
                     from_user = '@'+update.message.from_user.username
@@ -53,13 +53,13 @@ def main(blocking = True):
                     from_user = update.message.from_user.first_name
                 arg = " ".join(context.args)
                 response = handler(chat_id, from_user, arg)
-                update.message.reply_text(response)
+                await update.message.reply_text(response)
             return telegram_handler
 
         application.add_handler(CommandHandler(command, make_handler(handler)))
 
     # On non-command i.e message 
-    application.add_handler(MessageHandler(filters.text & (~filters.command), message_handler))
+    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), message_handler))
 
     # Start the Bot
     application.run_polling()
