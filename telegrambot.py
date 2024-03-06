@@ -2,10 +2,11 @@
 
 import logging
 from telegram import Update
-from telegram.ext import Updater, PrefixHandler, CallbackContext, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 import bot
 from lib import corona
 import config
+import random
 
 corona.irc_formatting = False
 
@@ -16,23 +17,30 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-def mention_handler(update: Update, context: CallbackContext):
-    text = update.message.text
-    new_text = text
-    mentioned = False
+def error_handler(update, context):
+    logger.warning('Update "%s" caused error "%s"', update, context.error)
 
-    for entity in update.message.entities:
-        if entity.type == "mention":
-            mention = text[entity.offset : entity.offset+entity.length]
-            user_mentioned = mention[1:]
-            if user_mentioned == context.bot.username:
-                mentioned = True
-            new_text = new_text.replace(mention, "")
-    
-    if mentioned:
-        chat_id = str(update.effective_chat.id)
-        response, score = bot.get_bot_instance(chat_id).chatbot.elaborate_query(new_text.strip())
-        update.message.reply_text(response)
+def message_handler(update: Update, context: CallbackContext):
+    message = update.message.text
+    bot_pinged = update.message.text and context.bot.username in update.message.text
+
+    chat_id = str(update.effective_chat.id)
+    bot_instance = bot.get_bot_instance(chat_id)
+
+    if update.message.from_user.username:
+        sender = '@'+update.message.from_user.username
+    else:
+        sender = update.message.from_user.first_name
+        
+    bot_instance.last_conversation_lines.append(f"{sender}: {message}")
+    while len(bot_instance.last_conversation_lines) > 50:
+        bot_instance.last_conversation_lines.pop(0)
+
+    if bot_pinged or (config.AUTO_SPEAK and random.random() < config.AUTO_SPEAK_PROBABILITY):
+        answer = bot_instance.chatbot.elaborate_query(bot_instance.last_conversation_lines)
+        if not answer: return None
+        bot_instance.last_conversation_lines.append(f"{config.BOTNAME}: {answer}")
+        update.message.reply_text(answer)
 
 
 def main(blocking = True):
@@ -58,9 +66,12 @@ def main(blocking = True):
                 update.message.reply_text(response)
             return telegram_handler
 
-        dispatcher.add_handler(PrefixHandler(['!', '#', '/'], command, make_handler(handler)))
+        dispatcher.add_handler(CommandHandler(command, make_handler(handler)))
 
-    dispatcher.add_handler(MessageHandler(Filters.entity("mention"), mention_handler))
+    # On non-command i.e message 
+    dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), message_handler))
+
+    dispatcher.add_error_handler(error_handler)
 
     # Start the Bot
     updater.start_polling()
