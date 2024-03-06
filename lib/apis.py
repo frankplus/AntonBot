@@ -19,7 +19,7 @@ class Chatbot:
         self.client = OpenAI(api_key=CHATGPT_KEY)
 
     def elaborate_query(self, conversation):
-        system_message = f"Sei un amico di nome {BOTNAME}. Le tue risposte sono brevi ma significative."
+        system_message = f"Sei un amico di nome {BOTNAME}. Le tue risposte sono brevi ma divertenti."
 
         try:
             response = self.client.chat.completions.create(
