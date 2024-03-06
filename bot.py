@@ -35,8 +35,8 @@ def get_help(channel, sender, query):
         'tweet': '!tweet <message> to tweet a message',
         'fortune': '!fortune try this command yourself ;)',
         'shush': '!shush to make me stop being annoying',
-        'talk': '!talk if you want me to participate in your conversations'
-        'tell' '!tell <recipient> <message> to tell a message when the recipient joins the channel'
+        'talk': '!talk if you want me to participate in your conversations',
+        'tell': '!tell <recipient> <message> to tell a message when the recipient joins the channel'
     }
     if query:
         return commands.get(query, "Invalid command")
