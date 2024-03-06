@@ -20,10 +20,11 @@ class Chatbot:
             return None
         
         url = 'http://localhost:8081/completion'
-        prompt = "Dialog with a funny guy called Anton.\n\n" \
+        prompt = "Dialog with a funny guy called Anton, he gives very short replies.\n\n" \
+                    + "Anton: how can I help you?\n" \
                     + "\n".join(conversation) \
                     + f"\nAnton: "
-        data = {"prompt": prompt,"n_predict": 32}
+        data = {"prompt": prompt, "n_predict": 32, "stop": ["User:", "Anton:"]}
         print(data)
         response = http_request_post(url, json_data=data, json=True, timeout=40)
         print(response)
@@ -31,9 +32,7 @@ class Chatbot:
         if not response:
             return None
 
-        response = response["content"].split('\n')[0] #take only the first line
-        response = response.strip()
-        return response
+        return response["content"].strip()
 
 
 class Miniflux:

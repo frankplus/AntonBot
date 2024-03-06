@@ -137,8 +137,8 @@ async def elaborate_query(channel, sender, message):
             message = message.replace(BOTNAME, ' ')
 
     bot_instance = get_bot_instance(channel)
-    bot_instance.last_conversation_lines.append(f"{sender}: {message}")
-    while len(bot_instance.last_conversation_lines) > 5:
+    bot_instance.last_conversation_lines.append(f"User: {message}")
+    while len(bot_instance.last_conversation_lines) > 4:
         bot_instance.last_conversation_lines.pop(0)
 
 
