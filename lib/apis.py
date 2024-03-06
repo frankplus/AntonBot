@@ -118,26 +118,37 @@ def get_latest_news(query = None):
         return "I haven't found anything"
 
 def get_weather(location):
-
-    url = 'http://api.openweathermap.org/data/2.5/forecast?q={}&units=metric&appid={}'.format(location, OPENWEATHER_KEY)
+    #get geo location
+    url = f"http://api.openweathermap.org/geo/1.0/direct?q={location}&limit=1&appid={OPENWEATHER_KEY}"
     data = json_request_get(url)
     if not data:
         return None
-    if data["cod"] == '200':
-        name = data["city"]["name"]
-        today = data["list"][0]
+    
+    lat = data[0]["lat"]
+    lon = data[0]["lon"]
+    location_name = data[0]["name"]
 
-        response = "Weather for {} is {}, the temperature is around {}°C. " \
-                    .format(name, today["weather"][0]["description"], today["main"]["temp"])
+    # get weather data
+    url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude=minutely,hourly&units=metric&appid={OPENWEATHER_KEY}"
+    data = json_request_get(url)
+    if not data:
+        return None
+    
+    # ask chatgpt for bulletin
+    chatbot_prompt = f"give a  weather humorous bulletin for {location_name} in a short "\
+        "paragraph given the following data retrieved from openweathermap: \n"\
+        f"```\n{str(data)}\n```"
 
-        for day in data["list"]:
-            date = datetime.date.today() + datetime.timedelta(days=1)
-            if day["dt_txt"] == date.strftime("%Y-%m-%d 12:00:00"):
-                response = response + "Tomorrow at 12:00 will be {}, the temperature will be around {}°C." \
-                        .format(day["weather"][0]["description"], day["main"]["temp"])
-    else:
-        response = data["message"]
-    return response
+    client = OpenAI(api_key=CHATGPT_KEY)
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "user", "content": chatbot_prompt}
+        ]
+    )
+
+    response_message = response.choices[0].message.content
+    return response_message
 
 def get_youtube_videoinfo(item):
     title = item["snippet"]["title"]
