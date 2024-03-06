@@ -19,14 +19,29 @@ class Chatbot:
         self.client = OpenAI(api_key=CHATGPT_KEY)
 
     def elaborate_query(self, conversation):
-        system_message = f"Sei un amico di nome {BOTNAME}. Le tue risposte sono brevi ma divertenti."
+        system_message = f"Imagine you are {BOTNAME}, a friendly Italian friend, " \
+                        "participating in an ongoing group chat with your Italian " \
+                        "friends. Based on the previous conversation, generate a " \
+                        "short and humorous reply that AntonBot would likely give " \
+                        "in response to the latest message in the group chat."
 
         try:
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
-                messages=[{"role": "system", "content": system_message}] + conversation
+                messages=[{"role": "system", "content": system_message},
+                          {"role": "user", "content": '\n'.join(conversation)}]
             )
-            return response.choices[0].message.content
+            response_message = response.choices[0].message.content
+
+            # remove bot name
+            pos = response_message.find(BOTNAME)
+            if pos == 0:
+                split = response_message.split(' ', 1)
+                if len(split) > 1:
+                    response_message = split[1]
+
+            return response_message
+
         except Exception as e:
             logging.error(f"Failed to send request to chatgpt: {e}")
 

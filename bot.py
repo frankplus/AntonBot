@@ -104,6 +104,8 @@ handlers = {
 async def elaborate_query(channel, sender, message):
     message = message.strip()
 
+    if not message: return None
+
     if message.startswith("!"):
         splitted = message[1:].split(" ", 1)
         command = splitted[0]
@@ -126,22 +128,15 @@ async def elaborate_query(channel, sender, message):
     pos = message.find(BOTNAME)
     bot_pinged = True if pos != -1 else False
 
-    if bot_pinged:
-        # remove bot name
-        if pos == 0:
-            split = message.split(' ', 1)
-            if len(split) > 1:
-                message = split[1]
-
     bot_instance = get_bot_instance(channel)
-    bot_instance.last_conversation_lines.append({"role": "user", "content": message})
-    while len(bot_instance.last_conversation_lines) > 5:
+    bot_instance.last_conversation_lines.append(f"{sender}: {message}")
+    while len(bot_instance.last_conversation_lines) > 50:
         bot_instance.last_conversation_lines.pop(0)
 
     if bot_pinged or (config.AUTO_SPEAK and random.random() < AUTO_SPEAK_PROBABILITY):
         answer = bot_instance.chatbot.elaborate_query(bot_instance.last_conversation_lines)
         if not answer: return None
-        bot_instance.last_conversation_lines.append({"role": "assistant", "content": answer})
+        bot_instance.last_conversation_lines.append(f"{BOTNAME}: {answer}")
         return answer
 
 
