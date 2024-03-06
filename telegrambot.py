@@ -2,7 +2,7 @@
 
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
 import bot
 from lib import corona
 import config
@@ -69,7 +69,7 @@ def main(blocking = True):
         dispatcher.add_handler(CommandHandler(command, make_handler(handler)))
 
     # On non-command i.e message 
-    dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), message_handler))
+    dispatcher.add_handler(MessageHandler(filters.text & (~filters.command), message_handler))
 
     dispatcher.add_error_handler(error_handler)
 
