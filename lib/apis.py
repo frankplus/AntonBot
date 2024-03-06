@@ -20,7 +20,7 @@ class Chatbot:
             return None
         
         url = 'http://localhost:8081/completion'
-        prompt = "Dialog with an assistant named Anton who gives very brief answers.\n\n" \
+        prompt = "Dialog with a funny guy called Anton.\n\n" \
                     + "\n".join(conversation) \
                     + f"\nAnton: "
         data = {"prompt": prompt,"n_predict": 32}
