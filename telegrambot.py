@@ -67,7 +67,7 @@ def main(blocking = True):
         application.add_handler(CommandHandler(command, make_handler(handler)))
 
     # On non-command i.e message 
-    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), message_handler))
+    application.add_handler(MessageHandler((filters.TEXT | filters.PHOTO) & (~filters.COMMAND), message_handler))
 
     # Start the Bot
     application.run_polling()
