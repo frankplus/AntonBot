@@ -18,7 +18,7 @@ class Chatbot:
     def __init__(self):
         self.client = OpenAI(api_key=CHATGPT_KEY)
 
-    def elaborate_query(self, conversation):
+    def elaborate_query(self, conversation, image_input_url=None):
         prompt = f"You are {BOTNAME}, a friendly Italian friend, " \
                     "participating in a group chat with your friends. " \
                     "Based on the previous conversation, generate a " \
@@ -37,10 +37,31 @@ class Chatbot:
         prompt += '\n'.join(conversation)
 
         try:
-            response = self.client.chat.completions.create(
-                model="gpt-4-turbo-preview",
-                messages=[{"role": "user", "content": prompt}]
-            )
+            if not image_input_url:
+                response = self.client.chat.completions.create(
+                    model="gpt-4-turbo-preview",
+                    messages=[{"role": "user", "content": prompt}]
+                )
+            else:
+                response = self.client.chat.completions.create(
+                    model="gpt-4-vision-preview",
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": image_input_url,
+                                    },
+                                },
+                            ],
+                        }
+                    ],
+                    max_tokens=300,
+                )
+            
             response_message = response.choices[0].message.content
 
             # remove bot name

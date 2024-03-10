@@ -35,8 +35,14 @@ async def message_handler(update: Update, context: CallbackContext):
     while len(bot_instance.last_conversation_lines) > 50:
         bot_instance.last_conversation_lines.pop(0)
 
+    photo_url = None
+    if update.message.photo:
+        # Photo is present; get the highest resolution photo
+        photo_file = update.message.photo[-1].get_file()
+        photo_url = await photo_file.get_file_path()
+
     if bot_pinged or (config.AUTO_SPEAK and random.random() < config.AUTO_SPEAK_PROBABILITY):
-        answer = bot_instance.chatbot.elaborate_query(bot_instance.last_conversation_lines)
+        answer = bot_instance.chatbot.elaborate_query(bot_instance.last_conversation_lines, photo_url)
         if not answer: return None
         bot_instance.last_conversation_lines.append(f"{config.BOTNAME}: {answer}")
         await update.message.reply_text(answer)
