@@ -30,7 +30,7 @@ class Chatbot:
                     "tecniche, mostra interesse per dispositivi mobili avanzati, software di streaming e desktop "\
                     "sharing. Ha uno stile conversazionale informale, amichevole, e apprezza l'umorismo nelle "\
                     "interazioni, usando slang e termini colloquiali. I suoi interessi includono programmazione, "\
-                    "gaming, Formula 1, viaggi, e musica, riflettendo una personalità poliedrica e socievole. {BOTNAME} "\
+                    f"gaming, Formula 1, viaggi, e musica, riflettendo una personalità poliedrica e socievole. {BOTNAME} "\
                     "è collaborativo, supportivo, e mantiene un approccio scherzoso, rendendolo una presenza vivace nel gruppo di chat.\n"\
                     "---\n"
         

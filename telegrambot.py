@@ -17,17 +17,38 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+async def get_photo_url_from_message(message):
+    photo_url = None
+    if message.photo:
+        # Photo is present; get the highest resolution photo
+        photo_file = await message.photo[-1].get_file()
+        photo_url = photo_file.file_path
+    return photo_url
+
 async def message_handler(update: Update, context: CallbackContext):
     message = update.message.text
+
+    # If the photo has a caption, use it as the message
+    if not message and update.message.caption:
+        message = update.message.caption
+
+    # if the message is a photo or is replying to a message containing a photo
+    # get the photo url
+    photo_url = None
+    if update.message.photo:
+        photo_url = await get_photo_url_from_message(update.message)
+    elif update.message.reply_to_message and update.message.reply_to_message.photo:
+        photo_url = await get_photo_url_from_message(update.message.reply_to_message)
+
 
     is_private_chat = update.effective_chat.type == 'private'
     is_reply_to_bot = (update.message.reply_to_message is not None and
                        update.message.reply_to_message.from_user.id == context.bot.id)
 
     # Check if the bot was pinged or if it's a private chat
-    bot_pinged = update.message.text and \
-        ((context.bot.username in update.message.text) or \
-         (context.bot.first_name in update.message.text)) or \
+    bot_pinged = message and \
+        ((context.bot.username in message) or \
+         (context.bot.first_name in message)) or \
          is_private_chat or is_reply_to_bot
 
     chat_id = str(update.effective_chat.id)
@@ -37,13 +58,6 @@ async def message_handler(update: Update, context: CallbackContext):
         sender = '@'+update.message.from_user.username
     else:
         sender = update.message.from_user.first_name
-
-    photo_url = None
-    if update.message.photo:
-        # Photo is present; get the highest resolution photo
-        photo_file = await update.message.photo[-1].get_file()
-        photo_url = photo_file.file_path
-        message = update.message.caption
         
     # Add the message to the conversation history
     bot_instance.last_conversation_lines.append(f"{sender}: {message}")
