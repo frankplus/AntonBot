@@ -19,9 +19,16 @@ logger = logging.getLogger(__name__)
 
 async def message_handler(update: Update, context: CallbackContext):
     message = update.message.text
+
+    is_private_chat = update.effective_chat.type == 'private'
+    is_reply_to_bot = (update.message.reply_to_message is not None and
+                       update.message.reply_to_message.from_user.id == context.bot.id)
+
+    # Check if the bot was pinged or if it's a private chat
     bot_pinged = update.message.text and \
         ((context.bot.username in update.message.text) or \
-         (context.bot.first_name in update.message.text))
+         (context.bot.first_name in update.message.text)) or \
+         is_private_chat or is_reply_to_bot
 
     chat_id = str(update.effective_chat.id)
     bot_instance = bot.get_bot_instance(chat_id)
@@ -30,16 +37,18 @@ async def message_handler(update: Update, context: CallbackContext):
         sender = '@'+update.message.from_user.username
     else:
         sender = update.message.from_user.first_name
-        
-    bot_instance.last_conversation_lines.append(f"{sender}: {message}")
-    while len(bot_instance.last_conversation_lines) > 50:
-        bot_instance.last_conversation_lines.pop(0)
 
     photo_url = None
     if update.message.photo:
         # Photo is present; get the highest resolution photo
-        photo_file = update.message.photo[-1].get_file()
-        photo_url = await photo_file.get_file_path()
+        photo_file = await update.message.photo[-1].get_file()
+        photo_url = photo_file.file_path
+        message = update.message.caption
+        
+    # Add the message to the conversation history
+    bot_instance.last_conversation_lines.append(f"{sender}: {message}")
+    while len(bot_instance.last_conversation_lines) > 50:
+        bot_instance.last_conversation_lines.pop(0)
 
     if bot_pinged or (config.AUTO_SPEAK and random.random() < config.AUTO_SPEAK_PROBABILITY):
         answer = bot_instance.chatbot.elaborate_query(bot_instance.last_conversation_lines, photo_url)
