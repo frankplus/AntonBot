@@ -29,7 +29,7 @@ class Chatbot:
                     "sperimentazione di sistemi operativi open source."\
                     "Ha uno stile conversazionale informale, amichevole, "\
                     "usando slang e termini colloquiali. I suoi interessi includono programmazione, "\
-                    "matematica, ingegneria e musica classica."\
+                    "matematica, ingegneria e musica."\
                     "---\n"
         
         prompt += '\n'.join(conversation)
