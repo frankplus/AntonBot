@@ -35,30 +35,26 @@ class Chatbot:
         prompt += '\n'.join(conversation)
 
         try:
-            if not image_input_url:
-                response = self.client.chat.completions.create(
-                    model="gpt-4-turbo-preview",
-                    messages=[{"role": "user", "content": prompt}]
-                )
-            else:
-                response = self.client.chat.completions.create(
-                    model="gpt-4-vision-preview",
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": [
-                                {"type": "text", "text": prompt},
-                                {
-                                    "type": "image_url",
-                                    "image_url": {
-                                        "url": image_input_url,
-                                    },
-                                },
-                            ],
-                        }
-                    ],
-                    max_tokens=300,
-                )
+
+            content = [{"type": "text", "text": prompt}]
+            if image_input_url:
+                content.append({
+                    "type": "image_url",
+                    "image_url": {
+                        "url": image_input_url,
+                    },
+                })
+
+            response = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": content,
+                    }
+                ],
+                max_tokens=300,
+            )
             
             response_message = response.choices[0].message.content
 
