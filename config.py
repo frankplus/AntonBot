@@ -1,5 +1,6 @@
 CHANNEL = "#bugbyte-ita"
 BOTNAME = "AntonBot"
+ALT_NAMES = ["bugbytebot", "Anton", "anton"]
 IRC_SERVER_ADDRESS = "irc.libera.chat"
 IRC_SERVER_PASS = "" # ignore if irc server does not have a password
 HTTP_REQUEST_TIMEOUT = 20 # timeout in seconds

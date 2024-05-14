@@ -49,6 +49,7 @@ async def message_handler(update: Update, context: CallbackContext):
     bot_pinged = message and \
         ((context.bot.username in message) or \
          (context.bot.first_name in message)) or \
+         any(word in message for word in config.ALT_NAMES) or \
          is_private_chat or is_reply_to_bot
 
     chat_id = str(update.effective_chat.id)

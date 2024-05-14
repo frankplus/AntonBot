@@ -19,7 +19,8 @@ class Chatbot:
         self.client = OpenAI(api_key=CHATGPT_KEY)
 
     def elaborate_query(self, conversation, image_input_url=None):
-        prompt = f"You are {BOTNAME}, a friendly Italian friend, " \
+        alternative_names = " or ".join(ALT_NAMES)
+        prompt = f"You are {BOTNAME}, also known as {alternative_names}, a friendly Italian friend, " \
                     "participating in a group chat with your friends. " \
                     "Based on the previous conversation, generate a " \
                     f"very short reply that {BOTNAME} would likely give " \
