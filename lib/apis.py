@@ -151,13 +151,13 @@ def get_weather(location):
         return None
     
     # ask chatgpt for bulletin
-    chatbot_prompt = f"give a humorous weather bulletin and forecast for {location_name} in a short "\
-        "paragraph given the following data retrieved from openweathermap: \n"\
+    chatbot_prompt = f"give a humorous but informative weather bulletin and forecast for {location_name} in one short "\
+        "paragraph in Italian given the following data retrieved from openweathermap: \n"\
         f"```\n{str(data)}\n```"
 
     client = OpenAI(api_key=CHATGPT_KEY)
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4o",
         messages=[
             {"role": "user", "content": chatbot_prompt}
         ]
