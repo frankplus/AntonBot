@@ -151,7 +151,7 @@ def get_weather(location):
         return None
     
     # ask chatgpt for bulletin
-    chatbot_prompt = f"give a  weather humorous bulletin for {location_name} in a short "\
+    chatbot_prompt = f"give a humorous weather bulletin and forecast for {location_name} in a short "\
         "paragraph given the following data retrieved from openweathermap: \n"\
         f"```\n{str(data)}\n```"
 
