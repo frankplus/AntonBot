@@ -19,45 +19,24 @@ class Chatbot:
         self.client = OpenAI(api_key=CHATGPT_KEY)
 
     def elaborate_query(self, conversation, image_input_url=None):
-        alternative_names = " or ".join(ALT_NAMES)
-        prompt = f"You are {BOTNAME}, also known as {alternative_names}, a friendly Italian friend, " \
-                    "participating in a group chat with your friends. " \
-                    "Based on the previous conversation, generate a " \
-                    f"very short reply that {BOTNAME} would likely give " \
-                    "in response to the latest message in the group chat. " \
-                    "Your responses should match the tone and style of the group. \n" \
-                    f"{BOTNAME} è un appassionato di tecnologia con una forte inclinazione per la personalizzazione e "\
-                    "sperimentazione di sistemi operativi open source."\
-                    "Ha uno stile conversazionale informale, amichevole, "\
-                    "usando slang e termini colloquiali. I suoi interessi includono programmazione, "\
-                    "matematica, ingegneria e musica."\
-                    "---\n"
-        
-        prompt += '\n'.join(conversation)
 
         try:
 
-            content = [{"type": "text", "text": prompt}]
-            if image_input_url:
-                content.append({
-                    "type": "image_url",
-                    "image_url": {
-                        "url": image_input_url,
-                    },
-                })
-
-            response = self.client.chat.completions.create(
+            response = self.client.responses.create(
                 model="gpt-4o",
-                messages=[
+                input=[
+                    {
+                        "role": "developer",
+                        "content": CHATBOT_PROMPT
+                    },
                     {
                         "role": "user",
-                        "content": content,
+                        "content": '\n'.join(conversation)
                     }
-                ],
-                max_tokens=300,
+                ]
             )
-            
-            response_message = response.choices[0].message.content
+
+            response_message = response.output_text
 
             # remove bot name
             pos = response_message.find(BOTNAME)
