@@ -1,4 +1,7 @@
-from lib.apis import emojize
+import emoji
+
+def emojize(query):
+    return emoji.emojize(query, use_aliases=True)
 
 def register(bot):
     bot.register_command('image', lambda channel, sender, query: bot.get_bot_instance(channel).chatbot.generate_image(query) if query else None)
