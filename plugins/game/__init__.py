@@ -202,3 +202,7 @@ class Game:
                 response = "{}, it's not your turn!!".format(sender)
                 
         return response
+
+def register(bot):
+    bot.register_command('game', lambda channel, sender, query: bot.get_bot_instance(channel).game_instance.elaborate_query(sender, query))
+    bot.register_help('game', get_help())

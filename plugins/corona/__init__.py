@@ -127,3 +127,7 @@ def elaborate_query(query):
         return info
     
     return "I don't know bro"
+
+def register(bot):
+    bot.register_command('corona', lambda channel, sender, query: elaborate_query(query) if query else None)
+    bot.register_help('corona', '!corona <location> for latest coronavirus report for specified location.')

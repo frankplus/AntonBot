@@ -199,3 +199,14 @@ class Game:
                 response = "{}, it's not your turn!!".format(sender)
                 
         return response
+
+def register(bot):
+    """
+    Register chessbot plugin commands and help with the main bot.
+    The bot argument is expected to have 'register_command' and 'register_help' methods.
+    """
+    bot.register_command(
+        'chess',
+        lambda channel, sender, query: bot.get_bot_instance(channel).chess_instance.elaborate_query(sender, query)
+    )
+    bot.register_help('chess', get_help())
