@@ -101,8 +101,6 @@ async def elaborate_query(channel, sender, message):
         args = splitted[1] if len(splitted)>1 else ""
         if command in plugin_bot.handlers:
             return plugin_bot.handlers[command](channel, sender, args)
-    elif message[0] == ':' and message[-1] == ':' and len(message) >= 3:
-        return emojize(message)
     elif message.lower() in ["hi", "hello", "yo", "hey", "we"]:
         return random.choice(greetings).format(sender)
     elif enableUrlInfo:
