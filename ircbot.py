@@ -2,8 +2,7 @@
 
 from pyrcb2 import IRCBot, Event
 import bot
-from config import CHANNEL, BOTNAME, IRC_SERVER_ADDRESS, IRC_SERVER_PASS, ENABLE_MINIFLUX
-from lib.apis import Miniflux
+from config import CHANNEL, BOTNAME, IRC_SERVER_ADDRESS, IRC_SERVER_PASS
 import asyncio
 import logging
 
@@ -21,7 +20,6 @@ class MyBot:
             await self.bot.register(BOTNAME)
             await self.bot.join(CHANNEL)
             logging.info("IRC bot connected")
-            if ENABLE_MINIFLUX: await self.rss_reader_loop()
         await self.bot.run(init())
 
     @Event.privmsg
@@ -47,18 +45,6 @@ class MyBot:
         response = bot.on_join(sender, channel)
         if response:
             self.bot.privmsg(channel, response)
-
-    async def rss_reader_loop(self):
-        rss = Miniflux()
-        while True:
-            response = rss.get_new_entries()
-            if response:
-                lines = response.split("\n")
-                for channel in self.bot.channels:
-                    for line in lines:
-                        if line: 
-                            self.bot.privmsg(channel, line)
-            await asyncio.sleep(600)
 
 
 async def main():
