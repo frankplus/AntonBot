@@ -1,5 +1,6 @@
-import __import__('config') as config
+import config
 from lib.utils import json_request_get
+from openai import OpenAI
 
 def get_weather(location):
     url = f"http://api.openweathermap.org/geo/1.0/direct?q={location}&limit=1&appid={config.OPENWEATHER_KEY}"
@@ -16,7 +17,6 @@ def get_weather(location):
     chatbot_prompt = f"give a humorous but informative weather bulletin and forecast for {location_name} in one short "\
         "paragraph in Italian given the following data retrieved from openweathermap: \n"\
         f"```\n{str(data)}\n```"
-    from openai import OpenAI
     client = OpenAI(api_key=config.CHATGPT_KEY)
     response = client.chat.completions.create(
         model="gpt-4o",
@@ -28,5 +28,5 @@ def get_weather(location):
     return response_message
 
 def register(bot):
-    bot.register_command('weather', lambda channel, sender, query: get_weather(query) if query else None)
+    bot.register_command('weather', lambda _channel, _sender, query: get_weather(query) if query else None)
     bot.register_help('weather', '!weather <location> for weather report at specified location.')
