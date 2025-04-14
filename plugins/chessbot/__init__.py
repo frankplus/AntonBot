@@ -200,13 +200,13 @@ class Game:
                 
         return response
 
+chess_instances = {}
+
+def chess_command_handler(channel, sender, query):
+    if channel not in chess_instances or chess_instances[channel].gamestate == GameState.stop:
+        chess_instances[channel] = Game(channel)
+    return chess_instances[channel].elaborate_query(sender, query)
+
 def register(bot):
-    """
-    Register chessbot plugin commands and help with the main bot.
-    The bot argument is expected to have 'register_command' and 'register_help' methods.
-    """
-    bot.register_command(
-        'chess',
-        lambda channel, sender, query: bot.get_bot_instance(channel).chess_instance.elaborate_query(sender, query)
-    )
+    bot.register_command('chess', chess_command_handler)
     bot.register_help('chess', get_help())

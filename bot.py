@@ -85,13 +85,6 @@ class PluginBot:
 
 plugin_bot = PluginBot()
 
-def set_bot_autospeak(autospeak):
-    config.AUTO_SPEAK = autospeak
-    if autospeak:
-        return "I will join your conversations"
-    else:
-        return "I'll be quiet then"
-
 async def elaborate_query(channel, sender, message):
     message = message.strip()
     if not message: return None

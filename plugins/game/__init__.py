@@ -203,6 +203,13 @@ class Game:
                 
         return response
 
+game_instances = {}
+
+def game_command_handler(channel, sender, query):
+    if channel not in game_instances or game_instances[channel].gamestate == GameState.stop:
+        game_instances[channel] = Game()
+    return game_instances[channel].elaborate_query(sender, query)
+
 def register(bot):
-    bot.register_command('game', lambda channel, sender, query: bot.get_bot_instance(channel).game_instance.elaborate_query(sender, query))
+    bot.register_command('game', game_command_handler)
     bot.register_help('game', get_help())
