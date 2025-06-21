@@ -5,6 +5,7 @@ from config import BOTNAME
 import config
 import os
 import importlib
+import logging
 
 enableUrlInfo = True
 
@@ -20,9 +21,9 @@ greetings = [
 ]
 
 class BotInstance:
-    def __init__(self, id):
+    def __init__(self, id, plugin_bot=None):
         self.id = id
-        self.chatbot = Chatbot()
+        self.chatbot = Chatbot(plugin_bot)
         self.last_conversation_lines = list()
         self.tell_on_join = dict()
     
@@ -44,6 +45,9 @@ class PluginBot:
         self.handlers = {}
         self.help_entries = {}
         self.bot_instances = dict()
+        # Function calling support
+        self.available_functions = {}
+        self.function_definitions = []
         self.load_plugins()
         # Register built-in commands
         self.register_builtin_commands()
@@ -54,6 +58,24 @@ class PluginBot:
     def register_help(self, name, help_text):
         self.help_entries[name] = help_text
 
+    def register_function(self, function_handler, function_definition):
+        """Register a function for OpenAI function calling"""
+        function_name = function_definition.get("name")
+        if function_name:
+            self.available_functions[function_name] = function_handler
+            self.function_definitions.append(function_definition)
+            logging.info(f"Registered function: {function_name}")
+        else:
+            logging.warning("Function definition missing 'name' field")
+
+    def get_function_definitions(self):
+        """Get all registered function definitions"""
+        return self.function_definitions
+
+    def get_available_functions(self):
+        """Get all available function handlers"""
+        return self.available_functions
+
     def get_help(self, channel, sender, query):
         if query:
             return self.help_entries.get(query, "Invalid command")
@@ -62,7 +84,7 @@ class PluginBot:
 
     def get_bot_instance(self, id):
         if id not in self.bot_instances:
-            self.bot_instances[id] = BotInstance(id)
+            self.bot_instances[id] = BotInstance(id, self)
         return self.bot_instances[id]
 
     def load_plugins(self):

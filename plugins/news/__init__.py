@@ -39,3 +39,5 @@ def get_latest_news(query=None):
 def register(bot):
     bot.register_command('news', lambda channel, sender, query: get_latest_news(query))
     bot.register_help('news', '!news <query> for latest news related to specified query.')
+    # Register function for OpenAI function calling
+    bot.register_function(get_latest_news, NEWS_FUNCTION_DEFINITION)

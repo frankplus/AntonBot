@@ -14,30 +14,13 @@ import json
 logging.getLogger().setLevel(logging.DEBUG)
 
 class Chatbot:
-    def __init__(self):
+    def __init__(self, plugin_bot=None):
         self.client = OpenAI(api_key=CHATGPT_KEY)
-        self._load_functions()
-
-    def _load_functions(self):
-        """Load available functions from plugins"""
-        self.available_functions = {}
-        self.function_definitions = []
-        
-        # Load news function
-        try:
-            from plugins.news import get_latest_news, NEWS_FUNCTION_DEFINITION
-            self.available_functions["get_latest_news"] = get_latest_news
-            self.function_definitions.append(NEWS_FUNCTION_DEFINITION)
-        except ImportError as e:
-            logging.warning(f"Could not load news plugin: {e}")
-        
-        # Load weather function
-        try:
-            from plugins.weather import get_weather_api, WEATHER_FUNCTION_DEFINITION
-            self.available_functions["get_weather_api"] = get_weather_api
-            self.function_definitions.append(WEATHER_FUNCTION_DEFINITION)
-        except ImportError as e:
-            logging.warning(f"Could not load weather plugin: {e}")
+        self.plugin_bot = plugin_bot
+        if plugin_bot:
+            # Use plugin bot's function definitions
+            self.available_functions = plugin_bot.get_available_functions()
+            self.function_definitions = plugin_bot.get_function_definitions()
 
     def elaborate_query(self, conversation, image_input_url=None):
         try:

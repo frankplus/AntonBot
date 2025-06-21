@@ -70,3 +70,5 @@ WEATHER_FUNCTION_DEFINITION = {
 def register(bot):
     bot.register_command('weather', lambda _channel, _sender, query: get_weather_summary(query) if query else None)
     bot.register_help('weather', '!weather <location> for weather report at specified location.')
+    # Register function for OpenAI function calling
+    bot.register_function(get_weather_api, WEATHER_FUNCTION_DEFINITION)
