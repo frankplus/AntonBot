@@ -30,6 +30,14 @@ class Chatbot:
             self.function_definitions.append(NEWS_FUNCTION_DEFINITION)
         except ImportError as e:
             logging.warning(f"Could not load news plugin: {e}")
+        
+        # Load weather function
+        try:
+            from plugins.weather import get_weather_api, WEATHER_FUNCTION_DEFINITION
+            self.available_functions["get_weather_api"] = get_weather_api
+            self.function_definitions.append(WEATHER_FUNCTION_DEFINITION)
+        except ImportError as e:
+            logging.warning(f"Could not load weather plugin: {e}")
 
     def elaborate_query(self, conversation, image_input_url=None):
         try:
