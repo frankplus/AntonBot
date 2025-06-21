@@ -49,6 +49,33 @@ def search_youtube_video(query, music=False):
         return "\x0303[youtube]\x03 {} {}".format(url, info)
     return "I haven't found anything"
 
+# OpenAI function definition
+YOUTUBE_SEARCH_FUNCTION_DEFINITION = {
+    "type": "function",
+    "name": "search_youtube_video",
+    "description": "Search for YouTube videos by query. Returns the top result with video URL, title, channel, and description.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "The search query to find YouTube videos"
+            },
+            "music": {
+                "type": "boolean",
+                "description": "Whether to search specifically for music videos (default: false)"
+            }
+        },
+        "required": ["query", "music"],
+        "additionalProperties": False
+    },
+    "strict": True
+}
+
 def register(bot):
+    # Register command for direct use
     bot.register_command('youtube', lambda channel, sender, query: search_youtube_video(query) if query else None)
     bot.register_help('youtube', '!youtube <query> to search for youtube video.')
+    
+    # Register function for OpenAI function calling
+    bot.register_function(search_youtube_video, YOUTUBE_SEARCH_FUNCTION_DEFINITION)
