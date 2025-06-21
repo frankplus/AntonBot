@@ -1,23 +1,23 @@
 import requests
 from bs4 import BeautifulSoup
 
-# Function definition for OpenAI function calling
+# Function definition for OpenAI responses API
 NEWS_FUNCTION_DEFINITION = {
     "type": "function",
-    "function": {
-        "name": "get_latest_news",
-        "description": "Get the latest news articles. Can search for specific topics or get general top headlines from Italy.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": "Optional search query for specific news topics. If not provided, returns top headlines from Italy."
-                }
-            },
-            "required": []
-        }
-    }
+    "name": "get_latest_news",
+    "description": "Get the latest news articles. Can search for specific topics or get general top headlines from Italy.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "Optional search query for specific news topics. If not provided, returns top headlines from Italy."
+            }
+        },
+        "required": ["query"],
+        "additionalProperties": False
+    },
+    "strict": True
 }
 
 def get_latest_news(query=None):

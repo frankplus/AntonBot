@@ -33,7 +33,7 @@ class Chatbot:
 
     def elaborate_query(self, conversation, image_input_url=None):
         try:
-            messages = [
+            input_messages = [
                 {
                     "role": "developer",
                     "content": CHATBOT_PROMPT
@@ -44,44 +44,47 @@ class Chatbot:
                 }
             ]
 
-            response = self.client.chat.completions.create(
+            response = self.client.responses.create(
                 model="gpt-4.1",
-                messages=messages,
-                tools=self.function_definitions,
-                tool_choice="auto"
+                input=input_messages,
+                tools=self.function_definitions if self.function_definitions else None,
+                tool_choice="auto",
+                parallel_tool_calls=False
             )
 
             logging.debug(f"ChatGPT response: {response}")
 
-            response_message = response.choices[0].message
+            # Check if the model wants to call functions
+            has_function_calls = (response.output and 
+                                any(getattr(item, 'type', None) == 'function_call' 
+                                    for item in response.output))
             
-            # Check if the model wants to call a function
-            if response_message.tool_calls:
+            if has_function_calls:
                 # Execute function calls
-                for tool_call in response_message.tool_calls:
-                    function_name = tool_call.function.name
-                    function_args = json.loads(tool_call.function.arguments)
-                    
-                    if function_name in self.available_functions:
-                        function_response = self.available_functions[function_name](**function_args)
+                for tool_call in response.output:
+                    if getattr(tool_call, 'type', None) == 'function_call':
+                        function_name = tool_call.name
+                        function_args = json.loads(tool_call.arguments)
                         
-                        # Add function response to conversation
-                        messages.append(response_message)
-                        messages.append({
-                            "tool_call_id": tool_call.id,
-                            "role": "tool",
-                            "name": function_name,
-                            "content": str(function_response)
-                        })
+                        if function_name in self.available_functions:
+                            function_response = self.available_functions[function_name](**function_args)
+                            
+                            # Add function call and response to input messages
+                            input_messages.append(tool_call)
+                            input_messages.append({
+                                "type": "function_call_output",
+                                "call_id": tool_call.call_id,
+                                "output": str(function_response)
+                            })
                 
                 # Get final response with function results
-                final_response = self.client.chat.completions.create(
-                    model="gpt-4",
-                    messages=messages
+                final_response = self.client.responses.create(
+                    model="gpt-4.1",
+                    input=input_messages
                 )
-                response_message = final_response.choices[0].message.content
+                response_message = final_response.output_text
             else:
-                response_message = response_message.content
+                response_message = response.output_text
 
             # remove bot name
             if response_message:
