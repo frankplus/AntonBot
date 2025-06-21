@@ -19,7 +19,7 @@ class Chatbot:
     def elaborate_query(self, conversation, image_input_url=None):
         try:
             response = self.client.responses.create(
-                model="gpt-4o",
+                model="gpt-4.1",
                 input=[
                     {
                         "role": "developer",
