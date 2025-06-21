@@ -1,6 +1,25 @@
 import requests
 from bs4 import BeautifulSoup
 
+# Function definition for OpenAI function calling
+NEWS_FUNCTION_DEFINITION = {
+    "type": "function",
+    "function": {
+        "name": "get_latest_news",
+        "description": "Get the latest news articles. Can search for specific topics or get general top headlines from Italy.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "Optional search query for specific news topics. If not provided, returns top headlines from Italy."
+                }
+            },
+            "required": []
+        }
+    }
+}
+
 def get_latest_news(query=None):
     if query:
         url = f'http://newsapi.org/v2/everything?q={query}&sortBy=relevancy&apiKey=' + __import__('config').NEWSAPI_KEY
