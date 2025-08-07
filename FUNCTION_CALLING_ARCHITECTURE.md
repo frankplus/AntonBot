@@ -12,7 +12,7 @@ The bot has been enhanced with a more scalable and readable function calling sys
 - No need to manually import and register functions in `apis.py`
 
 ### 2. Plugin-Based Function Registration
-Each plugin can now register both commands and OpenAI functions:
+Each plugin can register both commands and OpenAI functions:
 
 ```python
 def register(bot):
@@ -24,11 +24,6 @@ def register(bot):
     bot.register_function(my_function, MY_FUNCTION_DEFINITION)
 ```
 
-### 3. Backward Compatibility
-The system maintains backward compatibility with existing code through:
-- Legacy function loading method as fallback
-- Optional plugin_bot parameter in Chatbot constructor
-
 ## Architecture Changes
 
 ### PluginBot Class Enhancements
@@ -36,17 +31,6 @@ The system maintains backward compatibility with existing code through:
 - Added `function_definitions` list to store OpenAI function definitions
 - Added `register_function()` method for plugins to register functions
 - Added getter methods for function definitions and handlers
-
-### Chatbot Class Updates
-- Constructor now accepts optional `plugin_bot` parameter
-- Uses plugin_bot's functions when available, falls back to legacy loading
-- Cleaner separation between chat logic and function management
-
-### Plugin Registration
-Plugins now register functions using:
-```python
-bot.register_function(function_handler, function_definition)
-```
 
 ## Example Plugin Structure
 
@@ -101,4 +85,3 @@ For existing plugins that want to add OpenAI function calling:
 2. Add `bot.register_function(handler, definition)` to your register() function
 3. The function will automatically be available for OpenAI function calling
 
-The legacy manual registration in `apis.py` is still supported but deprecated for new functions.

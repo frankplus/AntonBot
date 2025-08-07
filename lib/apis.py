@@ -36,7 +36,7 @@ class Chatbot:
             ]
 
             response = self.client.responses.create(
-                model="gpt-4.1",
+                model="gpt-5",
                 input=input_messages,
                 tools=self.function_definitions if self.function_definitions else None,
                 tool_choice="auto",
@@ -70,7 +70,7 @@ class Chatbot:
                 
                 # Get final response with function results
                 final_response = self.client.responses.create(
-                    model="gpt-4.1",
+                    model="gpt-5",
                     input=input_messages
                 )
                 response_message = final_response.output_text
