@@ -1,13 +1,11 @@
 from lib.apis import *
 import re
 import random
-from config import BOTNAME
+from config import BOTNAME, AUTO_SPEAK_PROBABILITY
 import config
 import os
 import importlib
 import logging
-
-enableUrlInfo = True
 
 greetings = [
     "Hello {}!",
@@ -118,19 +116,20 @@ async def elaborate_query(channel, sender, message):
             return plugin_bot.handlers[command](channel, sender, args)
     elif message.lower() in ["hi", "hello", "yo", "hey", "we"]:
         return random.choice(greetings).format(sender)
-    elif enableUrlInfo:
-        found_urls = re.findall(r'(https?://[^\s]+)', message)
-        for url in found_urls:
-            info = get_url_info(url)
-            if info:
-                return info
+    
+    # Check for URLs in the message and treat them as bot pings
+    found_urls = re.findall(r'(https?://[^\s]+)', message)
+    has_urls = len(found_urls) > 0
+    
     pos = message.find(BOTNAME)
     bot_pinged = True if pos != -1 else False
     bot_instance = plugin_bot.get_bot_instance(channel)
     bot_instance.last_conversation_lines.append(f"{sender}: {message}")
     while len(bot_instance.last_conversation_lines) > 50:
         bot_instance.last_conversation_lines.pop(0)
-    if bot_pinged or (config.AUTO_SPEAK and random.random() < AUTO_SPEAK_PROBABILITY):
+    
+    # Treat URLs as bot pings - this will trigger function calling to analyze URLs
+    if bot_pinged or has_urls or (config.AUTO_SPEAK and random.random() < AUTO_SPEAK_PROBABILITY):
         answer = bot_instance.chatbot.elaborate_query(bot_instance.last_conversation_lines)
         if not answer: return None
         bot_instance.last_conversation_lines.append(f"{BOTNAME}: {answer}")

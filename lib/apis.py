@@ -1,13 +1,7 @@
-import requests
-import datetime
-from urllib.parse import urlparse, parse_qs, urlencode
 from config import *
-from lib.utils import json_request_get, http_request_get, http_request_post
-import pypandoc
+from lib.utils import http_request_get
 from bs4 import BeautifulSoup
-import urllib
 import logging
-import twitter
 from openai import OpenAI
 import json
 
@@ -21,6 +15,17 @@ class Chatbot:
             # Use plugin bot's function definitions
             self.available_functions = plugin_bot.get_available_functions()
             self.function_definitions = plugin_bot.get_function_definitions()
+
+    def _extract_message_content(self, response):
+        """Extract text content from OpenAI response object"""
+        if hasattr(response, 'output') and response.output:
+            for item in response.output:
+                if hasattr(item, 'type') and item.type == 'message':
+                    if hasattr(item, 'content') and item.content:
+                        for content_item in item.content:
+                            if hasattr(content_item, 'type') and content_item.type == 'output_text':
+                                return content_item.text
+        return None
 
     def elaborate_query(self, conversation, image_input_url=None):
         try:
@@ -51,20 +56,25 @@ class Chatbot:
                                     for item in response.output))
             
             if has_function_calls:
-                # Execute function calls
-                for tool_call in response.output:
-                    if getattr(tool_call, 'type', None) == 'function_call':
-                        function_name = tool_call.name
-                        function_args = json.loads(tool_call.arguments)
+                # For reasoning models, we need to include all output items (reasoning + function calls)
+                # when passing them back to the model
+                for item in response.output:
+                    if getattr(item, 'type', None) == 'reasoning':
+                        # Add reasoning items as-is
+                        input_messages.append(item)
+                    elif getattr(item, 'type', None) == 'function_call':
+                        # Execute function calls
+                        function_name = item.name
+                        function_args = json.loads(item.arguments)
                         
                         if function_name in self.available_functions:
                             function_response = self.available_functions[function_name](**function_args)
                             
                             # Add function call and response to input messages
-                            input_messages.append(tool_call)
+                            input_messages.append(item)
                             input_messages.append({
                                 "type": "function_call_output",
-                                "call_id": tool_call.call_id,
+                                "call_id": item.call_id,
                                 "output": str(function_response)
                             })
                 
@@ -73,9 +83,11 @@ class Chatbot:
                     model="gpt-5",
                     input=input_messages
                 )
-                response_message = final_response.output_text
+                logging.debug(f"Final response after function calls: {final_response}")
+                response_message = self._extract_message_content(final_response)
             else:
-                response_message = response.output_text
+                logging.debug(f"response without function calls: {response}")
+                response_message = self._extract_message_content(response)
 
             # remove bot name
             if response_message:
