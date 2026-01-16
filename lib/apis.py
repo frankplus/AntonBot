@@ -9,29 +9,27 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 class Chatbot:
     def __init__(self, plugin_bot=None):
-        self.client = OpenAI(api_key=CHATGPT_KEY)
+        self.client = OpenAI(
+            api_key=GROK_API_KEY,
+            base_url="https://api.x.ai/v1",
+        )
         self.plugin_bot = plugin_bot
         if plugin_bot:
             # Use plugin bot's function definitions
             self.available_functions = plugin_bot.get_available_functions()
             self.function_definitions = plugin_bot.get_function_definitions()
 
-    def _extract_message_content(self, response):
-        """Extract text content from OpenAI response object"""
-        if hasattr(response, 'output') and response.output:
-            for item in response.output:
-                if hasattr(item, 'type') and item.type == 'message':
-                    if hasattr(item, 'content') and item.content:
-                        for content_item in item.content:
-                            if hasattr(content_item, 'type') and content_item.type == 'output_text':
-                                return content_item.text
-        return None
-
     def elaborate_query(self, conversation, image_input_url=None):
         try:
+            # Convert conversation list to message format
+            # conversation is a list of strings "Sender: message"
+            # We need to parse it slightly better or just dump it in user prompt?
+            # Existing code was doing: '\n'.join(conversation) as user content.
+            # We will keep that structure.
+            
             input_messages = [
                 {
-                    "role": "developer",
+                    "role": "system", 
                     "content": CHATBOT_PROMPT
                 },
                 {
@@ -40,66 +38,60 @@ class Chatbot:
                 }
             ]
 
-            response = self.client.responses.create(
-                model="gpt-5",
-                input=input_messages,
-                tools=self.function_definitions if self.function_definitions else None,
-                tool_choice="auto",
-                parallel_tool_calls=False
-            )
+            kwargs = {
+                "model": "grok-4-1-fast-non-reasoning",
+                "messages": input_messages,
+            }
+            if self.function_definitions:
+                kwargs["tools"] = self.function_definitions
+                kwargs["tool_choice"] = "auto"
 
-            logging.debug(f"ChatGPT response: {response}")
+            response = self.client.chat.completions.create(**kwargs)
 
-            # Check if the model wants to call functions
-            has_function_calls = (response.output and 
-                                any(getattr(item, 'type', None) == 'function_call' 
-                                    for item in response.output))
+            logging.debug(f"Grok response: {response}")
             
-            if has_function_calls:
-                # For reasoning models, we need to include all output items (reasoning + function calls)
-                # when passing them back to the model
-                for item in response.output:
-                    if getattr(item, 'type', None) == 'reasoning':
-                        # Add reasoning items as-is
-                        input_messages.append(item)
-                    elif getattr(item, 'type', None) == 'function_call':
-                        # Execute function calls
-                        function_name = item.name
-                        function_args = json.loads(item.arguments)
+            response_message = response.choices[0].message
+            tool_calls = response_message.tool_calls
+
+            if tool_calls:
+                # Append the assistant's response (with tool calls) to history
+                input_messages.append(response_message)
+
+                for tool_call in tool_calls:
+                    function_name = tool_call.function.name
+                    function_args = json.loads(tool_call.function.arguments)
+                    
+                    if function_name in self.available_functions:
+                        function_response = self.available_functions[function_name](**function_args)
                         
-                        if function_name in self.available_functions:
-                            function_response = self.available_functions[function_name](**function_args)
-                            
-                            # Add function call and response to input messages
-                            input_messages.append(item)
-                            input_messages.append({
-                                "type": "function_call_output",
-                                "call_id": item.call_id,
-                                "output": str(function_response)
-                            })
+                        input_messages.append({
+                            "tool_call_id": tool_call.id,
+                            "role": "tool",
+                            "name": function_name,
+                            "content": str(function_response),
+                        })
                 
-                # Get final response with function results
-                final_response = self.client.responses.create(
-                    model="gpt-5",
-                    input=input_messages
+                # Get final response
+                final_response = self.client.chat.completions.create(
+                    model="grok-4-1-fast-non-reasoning",
+                    messages=input_messages
                 )
                 logging.debug(f"Final response after function calls: {final_response}")
-                response_message = self._extract_message_content(final_response)
+                response_text = final_response.choices[0].message.content
             else:
-                logging.debug(f"response without function calls: {response}")
-                response_message = self._extract_message_content(response)
+                response_text = response_message.content
 
-            # remove bot name
-            if response_message:
-                pos = response_message.find(BOTNAME)
+            # remove bot name if present
+            if response_text:
+                pos = response_text.find(BOTNAME)
                 if pos == 0:
-                    split = response_message.split(' ', 1)
+                    split = response_text.split(' ', 1)
                     if len(split) > 1:
-                        response_message = split[1]
+                        response_text = split[1]
             
-            return response_message
+            return response_text
         except Exception as e:
-            logging.error(f"Failed to send request to chatgpt: {e}")
+            logging.error(f"Failed to send request to grok: {e}")
             return None
 
 def url_meta(url):

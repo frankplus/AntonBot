@@ -61,7 +61,18 @@ class PluginBot:
         function_name = function_definition.get("name")
         if function_name:
             self.available_functions[function_name] = function_handler
-            self.function_definitions.append(function_definition)
+            
+            # Adapt structure for OpenAI tools format: {"type": "function", "function": {...}}
+            # Plugins currently provide a flat dict with "type": "function" and function fields mixed.
+            fn_body = function_definition.copy()
+            tool_type = fn_body.pop("type", "function") # Remove 'type' from the inner function body
+            
+            tool_definition = {
+                "type": tool_type,
+                "function": fn_body
+            }
+            
+            self.function_definitions.append(tool_definition)
             logging.info(f"Registered function: {function_name}")
         else:
             logging.warning("Function definition missing 'name' field")
