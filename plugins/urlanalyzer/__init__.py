@@ -13,6 +13,16 @@ def analyze_url(url):
         str: Content of the webpage or None if failed
     """
     try:
+        # Check if it is a youtube video
+        if "youtube.com" in url or "youtu.be" in url:
+            try:
+                from plugins.youtube import get_youtube_description
+                yt_info = get_youtube_description(url)
+                if yt_info:
+                    return yt_info
+            except Exception as e:
+                logging.error(f"Failed to get youtube info: {e}")
+
         # Fetch the webpage content
         resp = http_request_get(url)
         if not resp:
